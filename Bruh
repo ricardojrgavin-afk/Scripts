@@ -1,0 +1,251 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local Workspace = game:GetService("Workspace")
+
+-- Clean up any existing script assets to avoid duplicate overlaps
+if _G.Onyx_Dual_Loader then _G.Onyx_Dual_Loader:Destroy() end
+if _G.MM2_Helper_Tracers then 
+    for _, line in pairs(_G.MM2_Helper_Tracers) do line:Remove() end
+end
+
+_G.MM2_Helper_Tracers = {}
+local highlights = {}
+local espEnabled = false 
+local lastRefresh = 0
+
+-- Core Screen GUI Container
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Onyx_Dual_Loader"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = CoreGui
+_G.Onyx_Dual_Loader = ScreenGui
+
+-- Button Design Creation
+local function createCircularButton(name, text, position)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Text = text
+    btn.Size = UDim2.new(0, 50, 0, 50)
+    btn.Position = position
+    
+    btn.BackgroundColor3 = Color3.fromRGB(43, 37, 56)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 13
+    btn.TextWrapped = true
+    btn.BackgroundTransparency = 0.25
+    
+    btn.Active = true
+    btn.Draggable = true
+    btn.Parent = ScreenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = btn
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(120, 110, 140)
+    stroke.Thickness = 1.5
+    stroke.Parent = btn
+
+    return btn
+end
+
+-- Render centered ESP button
+local ESPButton = createCircularButton("ESPBtn", "ESP", UDim2.new(0.5, -25, 0.2, 0))
+
+-- Role Checking Engine
+local function getRole(player)
+    if not player or not player.Character then return "Innocent" end
+    local backpack = player:FindFirstChild("Backpack")
+    local char = player.Character
+    
+    local function checkTools(container)
+        if not container then return nil end
+        for _, tool in ipairs(container:GetChildren()) do
+            if tool:IsA("Tool") then
+                local name = tool.Name:lower()
+                if name:find("knife") or name:find("murderer") then return "Murderer" end
+                if name:find("gun") or name:find("revolver") or name:find("sheriff") then return "Sheriff" end
+            end
+        end
+        return nil
+    end
+    return checkTools(backpack) or checkTools(char) or "Innocent"
+end
+
+-- Cleanup Handlers for Players
+local function removeVisualsForPlayer(player)
+    if highlights[player] then
+        highlights[player]:Destroy()
+        highlights[player] = nil
+    end
+    if _G.MM2_Helper_Tracers[player] then
+        _G.MM2_Helper_Tracers[player]:Remove()
+        _G.MM2_Helper_Tracers[player] = nil
+    end
+end
+
+-- Cleanup Handlers for Dropped Gun
+local function removeGunVisuals()
+    local gun = Workspace:FindFirstChild("GunDrop", true)
+    if gun then
+        if gun:FindFirstChild("GunHighlight") then
+            gun:FindFirstChild("GunHighlight"):Destroy()
+        end
+        if gun:FindFirstChild("GunEsp") then
+            gun:FindFirstChild("GunEsp"):Destroy()
+        end
+    end
+end
+
+local function clearAllVisuals()
+    for player, _ in pairs(highlights) do
+        removeVisualsForPlayer(player)
+    end
+    removeGunVisuals()
+end
+
+-- Toggle ESP Configuration States
+ESPButton.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    if espEnabled then
+        ESPButton.BackgroundColor3 = Color3.fromRGB(60, 50, 80)
+    else
+        ESPButton.BackgroundColor3 = Color3.fromRGB(43, 37, 56)
+        clearAllVisuals()
+    end
+end)
+
+Players.PlayerRemoving:Connect(removeVisualsForPlayer)
+
+-- High-Frequency Rendering Engine (RenderStepped)
+RunService.RenderStepped:Connect(function()
+    if not espEnabled then return end
+
+    local localChar = LocalPlayer.Character
+    if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then 
+        clearAllVisuals()
+        return 
+    end
+
+    local camera = workspace.CurrentCamera
+    local viewportCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    local currentTime = os.clock()
+    
+    local forceRefresh = false
+    if currentTime - lastRefresh >= 0.5 then
+        forceRefresh = true
+        lastRefresh = currentTime
+    end
+
+    -------------------------------------------------------
+    -- 1. HIGH-FREQUENCY GUN DROP TRACKER
+    -------------------------------------------------------
+    local gun = Workspace:FindFirstChild("GunDrop", true)
+    if gun then
+        if forceRefresh and gun:FindFirstChild("GunHighlight") then
+            gun:FindFirstChild("GunHighlight"):Destroy()
+        end
+
+        if not gun:FindFirstChild("GunHighlight") then
+            local gunh = Instance.new("Highlight")
+            gunh.Name = "GunHighlight"
+            gunh.FillColor = Color3.fromRGB(255, 255, 0)
+            gunh.OutlineColor = Color3.fromRGB(255, 255, 255)
+            gunh.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            gunh.FillTransparency = 0.4
+            gunh.OutlineTransparency = 0.2
+            gunh.Adornee = gun
+            gunh.Parent = gun
+        end
+        
+        if not gun:FindFirstChild("GunEsp") then
+            local esp = Instance.new("BillboardGui")
+            esp.Name = "GunEsp"
+            esp.Adornee = gun
+            esp.Size = UDim2.new(5, 0, 5, 0)
+            esp.AlwaysOnTop = true
+            esp.Parent = gun
+            
+            local text = Instance.new("TextLabel", esp)
+            text.Name = "GunLabel"
+            text.Size = UDim2.new(1, 0, 1, 0)
+            text.BackgroundTransparency = 1
+            text.TextStrokeTransparency = 0
+            text.TextColor3 = Color3.fromRGB(255, 255, 0)
+            text.Font = Enum.Font.FredokaOne
+            text.TextSize = 16
+            text.Text = "Gun Drop"
+        end
+    end
+
+    -------------------------------------------------------
+    -- 2. PLAYER TRACKER (Tracers + Highlights)
+    -------------------------------------------------------
+    local activePlayers = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player == LocalPlayer then continue end
+        
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        
+        if root then
+            activePlayers[player] = true
+            local role = getRole(player)
+            local color = Color3.fromRGB(0, 255, 0)
+            
+            if role == "Murderer" then
+                color = Color3.fromRGB(255, 0, 0)
+            elseif role == "Sheriff" then
+                color = Color3.fromRGB(0, 0, 255)
+            end
+
+            local hl = highlights[player]
+            if forceRefresh and hl then
+                hl:Destroy()
+                hl = nil
+            end
+            
+            if not hl or hl.Parent == nil then
+                hl = Instance.new("Highlight")
+                hl.FillTransparency = 0.5
+                hl.OutlineTransparency = 0
+                hl.Adornee = char
+                hl.Parent = ScreenGui
+                highlights[player] = hl
+            end
+            hl.FillColor = color
+            hl.OutlineColor = color
+
+            local screenPos, onScreen = camera:WorldToViewportPoint(root.Position)
+            local tracer = _G.MM2_Helper_Tracers[player]
+
+            if onScreen then
+                if not tracer then
+                    tracer = Drawing.new("Line")
+                    tracer.Thickness = 1.5
+                    tracer.Transparency = 0.8
+                    _G.MM2_Helper_Tracers[player] = tracer
+                end
+                tracer.Visible = true
+                tracer.From = viewportCenter
+                tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                tracer.Color = color
+            else
+                if tracer then tracer.Visible = false end
+            end
+        else
+            removeVisualsForPlayer(player)
+        end
+    end
+
+    for player, _ in pairs(highlights) do
+        if not activePlayers[player] then
+            removeVisualsForPlayer(player)
+        end
+    end
+end)
