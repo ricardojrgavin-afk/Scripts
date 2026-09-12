@@ -1,0 +1,832 @@
+-- This file was generated at discord.gg/syncrypt
+
+local t1 = {}
+local t2 = {}
+local v3 = unpack or table.unpack
+t2.value1 = game:GetService("Players")
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+t2.value2 = t2.value1.LocalPlayer
+t2.value3 = 0.033333333333333
+t2.value4 = 500
+t2.value5 = Color3.fromRGB(255, 0, 0)
+t2.value6 = 0.35
+t2.value7 = Color3.fromRGB(0, 0, 0)
+t2.value8 = 0.75
+t2.value9 = 200
+t2.value10 = 0.16
+t2.value11 = Enum.KeyCode.Q
+t2.value12 = Enum.KeyCode.E
+t2.value13 = true
+pcall(function()
+    if t2.value2:FindFirstChild("PlayerGui") then
+        local AimbotUI_v2 = t2.value2.PlayerGui:FindFirstChild("AimbotUI_v2")
+
+        if AimbotUI_v2 then
+            AimbotUI_v2:Destroy()
+        end
+    end
+
+    local AimbotUI_v2 = game:GetService("CoreGui"):FindFirstChild("AimbotUI_v2")
+
+    if AimbotUI_v2 then
+        AimbotUI_v2:Destroy()
+    end
+end)
+t2.value14 = false
+t2.value15 = false
+t2.value16 = true
+t2.value17 = "Head"
+t2.value18 = nil
+t2.value19 = false
+t2.value20 = {}
+t2.value21 = {}
+t2.value22 = {}
+t2.value23 = 0
+function t2.value24()
+    local CurrentCamera = workspace.CurrentCamera
+
+    if not CurrentCamera then
+        CurrentCamera = workspace:FindFirstChildOfClass("Camera")
+
+        if not CurrentCamera then
+            CurrentCamera = workspace.CurrentCamera
+        end
+    end
+
+    return CurrentCamera
+end
+function t2.value25(p1)
+    return p1 and p1.Character or nil
+end
+function t2.value26(p2)
+    local v29 = t2.value25(p2)
+
+    if v29 then
+        v29 = v29:FindFirstChildOfClass("Humanoid")
+    end
+
+    local v30 = v29 or nil
+
+    return v30 and v30.Health > 0
+end
+function t2.value27(p3)
+    local v26 = t2.value25(p3)
+
+    if not v26 then
+        return nil
+    end
+
+    local t2value17 = v26:FindFirstChild(t2.value17)
+
+    if not t2value17 then
+        t2value17 = v26:FindFirstChild("Head")
+
+        if not t2value17 then
+            t2value17 = v26:FindFirstChild("HumanoidRootPart")
+        end
+    end
+
+    return t2value17
+end
+function t2.value28(p4)
+    return t2.value20[p4] == true
+end
+function t2.value29()
+    local v31 = t2.value24()
+    local BoxHandleAdornment = Instance.new("BoxHandleAdornment")
+
+    BoxHandleAdornment.AlwaysOnTop = true
+    BoxHandleAdornment.ZIndex = 10
+    BoxHandleAdornment.Transparency = t2.value6
+    BoxHandleAdornment.Color3 = t2.value5
+    BoxHandleAdornment.Name = "ESP_HitboxInner"
+    BoxHandleAdornment.Parent = v31
+
+    local BoxHandleAdornment2 = Instance.new("BoxHandleAdornment")
+
+    BoxHandleAdornment2.AlwaysOnTop = true
+    BoxHandleAdornment2.ZIndex = 9
+    BoxHandleAdornment2.Transparency = t2.value8
+    BoxHandleAdornment2.Color3 = t2.value7
+    BoxHandleAdornment2.Name = "ESP_HitboxOutline"
+    BoxHandleAdornment2.Parent = v31
+
+    return {
+		inner = BoxHandleAdornment,
+		outline = BoxHandleAdornment2
+	}
+end
+function t2.value30(p5)
+    local v35 = t2.value21[p5]
+
+    if not v35 then
+        return
+    end
+
+    v35.inner.Adornee = nil
+    v35.outline.Adornee = nil
+    table.insert(t2.value22, v35)
+    t2.value21[p5] = nil
+end
+function t2.value31(p6)
+    if not p6 then
+        return nil, nil
+    end
+
+    local ok, result, v18 = pcall(function()
+        return p6:GetBoundingBox()
+    end)
+
+    if ok then
+        return result, v18
+    end
+
+    return nil, nil
+end
+function t2.value32(p7)
+    if p7 == t2.value2 then
+        return
+    end
+
+    if t2.value28(p7) then
+        t2.value30(p7)
+
+        return
+    end
+
+    local value13 = t2.value13
+
+    if value13 then
+        value13 = p7.Team
+
+        if value13 then
+            value13 = t2.value2.Team
+
+            if value13 then
+                value13 = p7.Team == t2.value2.Team
+            end
+        end
+    end
+
+    if value13 then
+        t2.value30(p7)
+
+        return
+    end
+
+    local Character = p7.Character
+    local v41 = not Character
+
+    if not v41 then
+        v41 = not Character.Parent or not t2.value26(p7)
+    end
+
+    if v41 then
+        t2.value30(p7)
+
+        return
+    end
+
+    local Character2 = t2.value2.Character
+
+    if Character2 then
+        Character2 = t2.value2.Character:FindFirstChild("HumanoidRootPart")
+    end
+
+    if Character2 then
+        local v43 = Character:FindFirstChild("HumanoidRootPart") or Character:FindFirstChild("Torso")
+
+        if v43 and (Character2.Position - v43.Position).Magnitude > t2.value4 then
+            t2.value30(p7)
+
+            return
+        end
+    end
+
+    local v44, v45 = t2.value31(Character)
+
+    if not v44 or not v45 then
+        t2.value30(p7)
+
+        return
+    end
+
+    local v46
+
+    if t2.value21[p7] then
+        v46 = t2.value21[p7]
+    else
+        v46 = table.remove(t2.value22) or t2.value29()
+        t2.value21[p7] = v46
+    end
+
+    local inner = v46.inner
+    local outline = v46.outline
+
+    inner.Adornee = Character
+    inner.Size = v45
+
+    local t3 = { Character:GetPivot() }
+
+    inner.CFrame = v44:ToObjectSpace(v3(t3))
+    outline.Adornee = Character
+    outline.Size = v45 * 1.05
+    outline.CFrame = v44:ToObjectSpace(Character:GetPivot())
+end
+t2.value33 = Instance.new("ScreenGui")
+t2.value33.Name = "AimbotUI_v2"
+t2.value33.ResetOnSpawn = false
+pcall(function()
+    t2.value33.Parent = game:GetService("CoreGui")
+end)
+
+if not t2.value33.Parent then
+    local value33 = t2.value33
+
+    t1.value1 = t2.value2:WaitForChild("PlayerGui")
+    value33.Parent = t1.value1
+end
+local Frame = Instance.new("Frame", t2.value33)
+
+Frame.Size = UDim2.new(0, 300, 0, 170)
+Frame.Position = UDim2.new(0.6, 0, 0.32, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+local TextLabel = Instance.new("TextLabel", Frame)
+
+TextLabel.Size = UDim2.new(1, -20, 0, 24)
+TextLabel.Position = UDim2.new(0, 10, 0, 8)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Text = "Aimbot (improved)"
+TextLabel.Font = Enum.Font.GothamBold
+TextLabel.TextSize = 15
+TextLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+t1.value1 = Instance.new("TextButton", Frame)
+t2.value34 = t1.value1
+t2.value34.Size = UDim2.new(0.48, -10, 0, 36)
+t2.value34.Position = UDim2.new(0, 10, 0, 36)
+t2.value34.Text = "Aimbot: OFF (Q)"
+t2.value34.Font = Enum.Font.GothamBold
+t2.value34.TextSize = 13
+t2.value34.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+Instance.new("UICorner", t2.value34).CornerRadius = UDim.new(0, 6)
+t2.value35 = Instance.new("TextButton", Frame)
+t2.value35.Size = UDim2.new(0.48, -10, 0, 36)
+t2.value35.Position = UDim2.new(0.52, 0, 0, 36)
+t2.value35.Text = "Strong Lock: OFF"
+t2.value35.Font = Enum.Font.Gotham
+t2.value35.TextSize = 13
+t2.value35.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+Instance.new("UICorner", t2.value35).CornerRadius = UDim.new(0, 6)
+t2.value36 = Instance.new("TextButton", Frame)
+t2.value36.Size = UDim2.new(0.48, -10, 0, 26)
+t2.value36.Position = UDim2.new(0, 10, 0, 84)
+t2.value36.Text = "Wallcheck: ON"
+t2.value36.Font = Enum.Font.Gotham
+t2.value36.TextSize = 12
+t2.value36.BackgroundColor3 = Color3.fromRGB(60, 160, 80)
+Instance.new("UICorner", t2.value36).CornerRadius = UDim.new(0, 6)
+t2.value37 = Instance.new("TextButton", Frame)
+t2.value37.Size = UDim2.new(0.48, -10, 0, 26)
+t2.value37.Position = UDim2.new(0.52, 0, 0, 84)
+t2.value37.Text = "Aim: Head"
+t2.value37.Font = Enum.Font.Gotham
+t2.value37.TextSize = 12
+t2.value37.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Instance.new("UICorner", t2.value37).CornerRadius = UDim.new(0, 6)
+t2.value38 = Instance.new("TextLabel", Frame)
+t2.value38.Size = UDim2.new(1, -20, 0, 16)
+t2.value38.Position = UDim2.new(0, 10, 0, 116)
+t2.value38.BackgroundTransparency = 1
+t2.value38.Text = "Aimed: None"
+t2.value38.Font = Enum.Font.Gotham
+t2.value38.TextSize = 12
+t2.value38.TextColor3 = Color3.fromRGB(200, 200, 200)
+t2.value38.TextXAlignment = Enum.TextXAlignment.Left
+t2.value39 = Instance.new("TextBox", Frame)
+t2.value39.Size = UDim2.new(0.48, -10, 0, 26)
+t2.value39.Position = UDim2.new(0, 10, 0, 136)
+t2.value39.PlaceholderText = "FOV Size (" .. t2.value9 .. ")"
+t2.value39.Text = tostring(t2.value9)
+t2.value39.Font = Enum.Font.Gotham
+t2.value39.TextSize = 12
+t2.value39.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+t2.value39.TextColor3 = Color3.fromRGB(230, 230, 230)
+Instance.new("UICorner", t2.value39).CornerRadius = UDim.new(0, 6)
+t2.value39.FocusLost:Connect(function(_)
+    local num = tonumber(t2.value39.Text)
+    local v52 = num
+
+    if num then
+        v52 = num > 0 and num < 2000
+    end
+
+    if v52 then
+        t2.value9 = num
+        t2.value39.Text = tostring(t2.value9)
+        t2.value39.PlaceholderText = "FOV Size (" .. t2.value9 .. ")"
+
+        if circle then
+            circle.Radius = t2.value9
+
+            return
+        end
+    else
+        t2.value39.Text = tostring(t2.value9)
+    end
+end)
+t2.value40 = nil
+t2.value41 = false
+pcall(function()
+    local drawing = Drawing.new("Circle")
+
+    drawing.Thickness = 2
+    drawing.NumSides = 64
+    drawing.Radius = t2.value9
+    drawing.Filled = false
+    drawing.Color = Color3.fromRGB(200, 200, 255)
+    drawing.Visible = false
+    t2.value40 = drawing
+    t2.value41 = true
+end)
+
+function t2.value42()
+    if not t2.value40 then
+        return
+    end
+
+    local v58 = t2.value24()
+
+    if not v58 then
+        return
+    end
+
+    local ViewportSize = v58.ViewportSize
+
+    t2.value40.Position = Vector2.new(ViewportSize.X / 2, ViewportSize.Y / 2)
+    t2.value40.Radius = t2.value9
+end
+local function v9(p9, p10)
+    if not p9 then
+        return false
+    end
+
+    local v62 = t2.value24()
+
+    if not v62 then
+        return false
+    end
+
+    local CFramePosition = v62.CFrame.Position
+    local v64 = p9.Position - CFramePosition
+    local raycastParams = RaycastParams.new()
+
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    local t4 = {}
+
+    if t2.value2.Character then
+        table.insert(t4, t2.value2.Character)
+    end
+
+    if p10 then
+        table.insert(t4, p10)
+    end
+
+    raycastParams.FilterDescendantsInstances = t4
+    raycastParams.IgnoreWater = true
+
+    return workspace:Raycast(CFramePosition, v64, raycastParams) == nil
+end
+function t2.value43()
+    local v67 = t2.value24()
+    if not v67 then
+        return nil
+    end
+    local ViewportSize = v67.ViewportSize
+    local vector2 = Vector2.new(ViewportSize.X / 2, ViewportSize.Y / 2)
+    local huge = math.huge
+    local v71
+    for _, player in ipairs(t2.value1:GetPlayers()) do
+        local v74 = player ~= t2.value2
+
+        if v74 then
+            v74 = t2.value26(player) and not t2.value28(player)
+        end
+
+        if v74 then
+            local value13 = t2.value13
+
+            if value13 then
+                value13 = player.Team
+
+                if value13 then
+                    value13 = t2.value2.Team
+
+                    if value13 then
+                        value13 = player.Team == t2.value2.Team
+                    end
+                end
+            end
+
+            if not value13 then
+                local v76 = t2.value27(player)
+
+                if v76 then
+                    local v77, v78 = v67:WorldToViewportPoint(v76.Position)
+
+                    if v78 then
+                        local Magnitude = (Vector2.new(v77.X, v77.Y) - vector2).Magnitude
+
+                        if Magnitude < t2.value9 and Magnitude < huge then
+                            local v80 = not t2.value16
+
+                            if not v80 then
+                                v80 = v9(v76, player.Character)
+                            end
+
+                            if v80 then
+                                huge = Magnitude
+                                v71 = player
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return v71
+end
+function t2.value44(p11)
+    local v54 = t2.value24()
+    if not v54 then
+        return false, "no cam"
+    end
+    local success, result = pcall(function()
+        v54.CFrame = p11
+    end)
+    if not success then
+        t2.value19 = true
+
+        return false, result
+    end
+
+    return true
+end
+RunService:BindToRenderStep("Aimbot_v2", Enum.RenderPriority.Camera.Value + 1, function()
+    if t2.value40 then
+        t2.value42()
+        t2.value40.Visible = t2.value14 and t2.value41
+    end
+
+    if not t2.value14 then
+        return
+    end
+
+    if t2.value19 then
+        t2.value38.Text = "Aimed: Camera writes blocked"
+
+        return
+    end
+
+    local v81 = not t2.value18
+
+    if not v81 then
+        local Character = t2.value18.Character
+
+        if Character then
+            Character = t2.value18.Character.Parent
+        end
+
+        v81 = not Character or not t2.value26(t2.value18)
+    end
+
+    if v81 then
+        t2.value18 = t2.value43()
+    end
+
+    local value18 = t2.value18
+
+    if value18 then
+        value18 = t2.value18.Character
+    end
+
+    if value18 then
+        local v84 = t2.value27(t2.value18)
+
+        if v84 then
+            local value16 = t2.value16
+
+            if value16 then
+                value16 = not v9(v84, t2.value18.Character)
+            end
+
+            if value16 then
+                t2.value18 = nil
+                t2.value38.Text = "Aimed: None"
+
+                return
+            end
+
+            local v86 = t2.value24()
+            local cFrame = CFrame.new(v86.CFrame.Position, v84.Position)
+
+            if t2.value15 then
+                local v88, _ = t2.value44(cFrame)
+
+                if not v88 then
+                    t2.value38.Text = "Aimed: Camera blocked"
+                    t2.value14 = false
+                    t2.value34.Text = "Aimbot: OFF (Q)"
+                    t2.value34.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+
+                    return
+                end
+            else
+                local ok, _ = pcall(function()
+                    v86.CFrame = v86.CFrame:Lerp(cFrame, t2.value10)
+                end)
+
+                if not ok then
+                    t2.value38.Text = "Aimed: Camera writes blocked"
+                    t2.value14 = false
+                    t2.value34.Text = "Aimbot: OFF (Q)"
+                    t2.value34.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+
+                    return
+                end
+            end
+
+            t2.value38.Text = "Aimed: " .. t2.value18.Name or "Unknown"
+
+            return
+        end
+    end
+
+    t2.value38.Text = "Aimed: None"
+end)
+
+local function v10(p12)
+    t2.value14 = p12
+    t2.value34.Text = "Aimbot: " .. (not p12 and "OFF (Q)" or "ON (Q)")
+
+    local value34 = t2.value34
+    local v94 = p12
+
+    if p12 then
+        v94 = Color3.fromRGB(60, 200, 120)
+    end
+
+    if not v94 then
+        v94 = Color3.fromRGB(180, 60, 60)
+    end
+
+    value34.BackgroundColor3 = v94
+
+    if p12 then
+        t2.value18 = t2.value43()
+
+        return
+    end
+
+    t2.value18 = nil
+    t2.value38.Text = "Aimed: None"
+
+    if t2.value40 then
+        t2.value40.Visible = false
+    end
+end
+t2.value34.MouseButton1Click:Connect(function()
+    v10(not t2.value14)
+end)
+t2.value35.MouseButton1Click:Connect(function()
+    t2.value15 = not t2.value15
+    t2.value35.Text = "Strong Lock: " .. (not t2.value15 and "OFF" or "ON")
+
+    local value35 = t2.value35
+    local value15 = t2.value15
+
+    if value15 then
+        value15 = Color3.fromRGB(60, 200, 120)
+    end
+
+    if not value15 then
+        value15 = Color3.fromRGB(180, 60, 60)
+    end
+
+    value35.BackgroundColor3 = value15
+
+    if t2.value15 then
+        t2.value18 = t2.value43()
+    end
+end)
+t2.value36.MouseButton1Click:Connect(function()
+    t2.value16 = not t2.value16
+    t2.value36.Text = "Wallcheck: " .. (not t2.value16 and "OFF" or "ON")
+
+    local value36 = t2.value36
+    local value16 = t2.value16
+
+    if value16 then
+        value16 = Color3.fromRGB(60, 200, 120)
+    end
+
+    if not value16 then
+        value16 = Color3.fromRGB(160, 160, 160)
+    end
+
+    value36.BackgroundColor3 = value16
+    t2.value18 = t2.value43()
+end)
+t2.value37.MouseButton1Click:Connect(function()
+    if t2.value17 == "Head" then
+        t2.value37.Text = "Aim: HRP"
+    else
+        t2.value37.Text = "Aim: Head"
+    end
+
+    t2.value18 = t2.value43()
+end)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then
+        return
+    end
+
+    if input.KeyCode == t2.value11 then
+        v10(not t2.value14)
+
+        return
+    end
+
+    if input.KeyCode == t2.value12 then
+        t2.value37:CaptureFocus()
+        t2.value37:ReleaseFocus()
+        t2.value37:MouseButton1Click()
+    end
+end)
+t2.value2.CharacterAdded:Connect(function()
+    t2.value18 = nil
+end)
+RunService.RenderStepped:Connect(function(dt)
+    t2.value23 = t2.value23 + dt
+
+    if t2.value23 < t2.value3 then
+        return
+    end
+
+    for _, player in ipairs(t2.value1:GetPlayers()) do
+        t2.value32(player)
+    end
+end)
+t2.value45 = Instance.new("TextButton", Frame)
+t2.value45.Size = UDim2.new(0.48, -10, 0, 26)
+t2.value45.Position = UDim2.new(0.52, 0, 0, 136)
+t2.value45.Text = "Exclude: 0"
+t2.value45.Font = Enum.Font.Gotham
+t2.value45.TextSize = 12
+t2.value45.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+Instance.new("UICorner", t2.value45).CornerRadius = UDim.new(0, 6)
+t2.value46 = Instance.new("Frame", Frame)
+t2.value46.Size = UDim2.new(0, 280, 0, 140)
+t2.value46.Position = UDim2.new(0, 10, 0, 170)
+t2.value46.BackgroundColor3 = Color3.fromRGB(16, 16, 16)
+t2.value46.Visible = false
+Instance.new("UICorner", t2.value46).CornerRadius = UDim.new(0, 8)
+t2.value47 = Instance.new("ScrollingFrame", t2.value46)
+t2.value47.Size = UDim2.new(1, -12, 1, -12)
+t2.value47.Position = UDim2.new(0, 6, 0, 6)
+t2.value47.BackgroundTransparency = 1
+t2.value47.CanvasSize = UDim2.new(0, 0, 0, 0)
+t2.value47.ScrollBarThickness = 6
+local UIListLayout = Instance.new("UIListLayout", t2.value47)
+
+UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+t2.value48 = {}
+function t2.value49()
+    local n1 = 0
+
+    for _, child in ipairs(t2.value47:GetChildren()) do
+        if child:IsA("TextButton") then
+            n1 = n1 + child.Size.Y.Offset + 6
+        end
+    end
+
+    t2.value47.CanvasSize = UDim2.new(0, 0, 0, (math.max(0, n1)))
+end
+function t2.value50(p13)
+    if p13 == t2.value2 then
+        return
+    end
+
+    if t2.value48[p13] then
+        return
+    end
+
+    local v111 = tostring(p13.Name) .. " (" .. tostring(p13.DisplayName or "") .. ")"
+    local TextButton = Instance.new("TextButton")
+
+    TextButton.Size = UDim2.new(1, 0, 0, 28)
+
+    local v113 = t2.value28(p13)
+
+    if v113 then
+        v113 = Color3.fromRGB(180, 60, 60)
+    end
+
+    if not v113 then
+        v113 = Color3.fromRGB(40, 40, 40)
+    end
+
+    TextButton.BackgroundColor3 = v113
+    TextButton.TextColor3 = Color3.fromRGB(230, 230, 230)
+    TextButton.Font = Enum.Font.Gotham
+    TextButton.TextSize = 14
+    TextButton.Text = v111
+    TextButton.Parent = t2.value47
+    TextButton.MouseButton1Click:Connect(function()
+        if t2.value20[p13] then
+            t2.value20[p13] = nil
+            TextButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        else
+            t2.value20[p13] = true
+            TextButton.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
+
+            if t2.value18 == p13 then
+                t2.value18 = nil
+            end
+        end
+
+        local n2 = 0
+
+        for _, v in pairs(t2.value20) do
+            if v then
+                n2 += 1
+            end
+        end
+
+        t2.value45.Text = "Exclude: " .. tostring(n2)
+    end)
+    t2.value48[p13] = TextButton
+    t2.value49()
+
+    local n3 = 0
+
+    for _, v in pairs(t2.value20) do
+        if v then
+            n3 += 1
+        end
+    end
+
+    t2.value45.Text = "Exclude: " .. tostring(n3)
+
+    return TextButton
+end
+for _, player in ipairs(t2.value1:GetPlayers()) do
+    t2.value50(player)
+end
+t2.value1.PlayerAdded:Connect(function(player)
+    t2.value50(player)
+end)
+t2.value1.PlayerRemoving:Connect(function(player)
+    t2.value20[player] = nil
+
+    local v119 = t2.value48[player]
+
+    if v119 and v119.Parent then
+        v119:Destroy()
+    end
+
+    t2.value48[player] = nil
+    t2.value49()
+
+    local n4 = 0
+
+    for _, v in pairs(t2.value20) do
+        if v then
+            n4 += 1
+        end
+    end
+
+    t2.value45.Text = "Exclude: " .. tostring(n4)
+    t2.value30(player)
+
+    if player ~= t2.value18 then
+    end
+end)
+t2.value45.MouseButton1Click:Connect(function()
+    t2.value46.Visible = not t2.value46.Visible
+end)
+t2.value1.PlayerRemoving:Connect(function(player)
+    t2.value30(player)
+end)
+print("[AimbotUI_v2] Loaded")
