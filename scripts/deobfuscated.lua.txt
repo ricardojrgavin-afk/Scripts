@@ -1,0 +1,1230 @@
+-- This file was generated at discord.gg/syncrypt
+
+loadstring([[-- ===========================
+--    NOKS VIP HUB - MOBILE
+--    FPS Boost Extreme
+-- ===========================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local lp = Players.LocalPlayer
+local cam = workspace.CurrentCamera
+
+local SETTINGS = {
+    ENABLE_LOCK = true,
+    ENABLE_SILENT_AIM = false,
+    ENABLE_XRAY = true,
+    ENABLE_INFJUMP = false,
+    ENABLE_FLY = false,
+    ENABLE_NOCLIP = false,
+    FOV = 120,
+    ENABLE_ESP = true,
+    ENABLE_TRACERS = true,
+    FLY_SPEED = 70,
+    FOLLOW_HEIGHT = 18,
+    ENABLE_DARK_TEXTURE = false,
+    ENABLE_UNLOCK_ALL = false,
+}
+
+local highlights = {}
+local espFolder = Instance.new("Folder", game.CoreGui)
+espFolder.Name = "Noks_VIP_ESP"
+
+-- Variables de vol
+local flyEnabled = false
+local flySpeed = 70
+local bodyVelocity = nil
+local bodyGyro = nil
+local flyThread = nil
+local currentFlyCharacter = nil
+
+-- Variables noclip
+local noclipActive = false
+local noclipConnection = nil
+
+-- Pour l'ESP
+local espConnections = {}
+local tracerLines = {}
+
+-- ========== TELEPORT FOLLOW VARIABLES ==========
+local followActive = false
+local followTarget = nil
+local followConnection = nil
+local bodyPosition = nil
+
+-- ========== SILENT AIM VARIABLES ==========
+local originalRaycast = nil
+
+-- Supprimer les anciens
+pcall(function()
+    if game.CoreGui:FindFirstChild("NoksVIP_MainGUI") then game.CoreGui.NoksVIP_MainGUI:Destroy() end
+    if game.CoreGui:FindFirstChild("NoksVIP_FOVCircle") then game.CoreGui.NoksVIP_FOVCircle:Destroy() end
+end)
+
+-- ========== GUI MOBILE ==========
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "NoksVIP_MainGUI"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
+
+-- Bouton flottant
+local floatingBtn = Instance.new("TextButton")
+floatingBtn.Parent = screenGui
+floatingBtn.Size = UDim2.new(0, 150, 0, 45)
+floatingBtn.Position = UDim2.new(0.02, 0, 0.02, 0)
+floatingBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 200)
+floatingBtn.Text = "⚡ NOKS"
+floatingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+floatingBtn.TextScaled = true
+floatingBtn.Font = Enum.Font.GothamBold
+floatingBtn.Visible = true
+
+local btnCorner = Instance.new("UICorner", floatingBtn)
+btnCorner.CornerRadius = UDim.new(0, 22)
+
+-- Panel principal
+local mainPanel = Instance.new("Frame")
+mainPanel.Parent = screenGui
+mainPanel.Size = UDim2.new(0, 350, 0, 500)
+mainPanel.Position = UDim2.new(0.5, -175, 0.5, -250)
+mainPanel.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
+mainPanel.BackgroundTransparency = 0.05
+mainPanel.BorderSizePixel = 0
+mainPanel.Visible = true
+
+local panelCorner = Instance.new("UICorner", mainPanel)
+panelCorner.CornerRadius = UDim.new(0, 15)
+
+-- Title bar
+local titleBar = Instance.new("Frame")
+titleBar.Parent = mainPanel
+titleBar.Size = UDim2.new(1, 0, 0, 45)
+titleBar.BackgroundColor3 = Color3.fromRGB(100, 40, 180)
+titleBar.BorderSizePixel = 0
+
+local titleCorner = Instance.new("UICorner", titleBar)
+titleCorner.CornerRadius = UDim.new(0, 15)
+
+local title = Instance.new("TextLabel")
+title.Parent = titleBar
+title.Size = UDim2.new(1, -90, 1, 0)
+title.Position = UDim2.new(0, 15, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "✦ NOKS VIP ✦"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+-- Minimize button
+local minBtn = Instance.new("TextButton")
+minBtn.Parent = titleBar
+minBtn.Size = UDim2.new(0, 35, 0, 35)
+minBtn.Position = UDim2.new(1, -85, 0, 5)
+minBtn.BackgroundColor3 = Color3.fromRGB(80, 60, 120)
+minBtn.Text = "─"
+minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 25
+
+local minCorner = Instance.new("UICorner", minBtn)
+minCorner.CornerRadius = UDim.new(0, 8)
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Parent = titleBar
+closeBtn.Size = UDim2.new(0, 35, 0, 35)
+closeBtn.Position = UDim2.new(1, -45, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 70)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(0, 8)
+
+-- Scrolling frame
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Parent = mainPanel
+scrollFrame.Size = UDim2.new(1, -20, 1, -65)
+scrollFrame.Position = UDim2.new(0, 10, 0, 55)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 4
+
+local uiList = Instance.new("UIListLayout")
+uiList.Parent = scrollFrame
+uiList.Padding = UDim.new(0, 8)
+
+-- ========== DRAG & DROP ==========
+local panelDragActive = false
+local panelDragStart, panelStartPos
+
+mainPanel.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local target = input.UserInputType == Enum.UserInputType.Touch and UserInputService:GetTouchPositions()[1] or input.Position
+        local guiObject = screenGui:GetGuiObjectsAtPosition(target.X, target.Y)
+        
+        local isInteractable = false
+        for _, obj in pairs(guiObject) do
+            if obj:IsA("TextButton") and obj ~= mainPanel and obj.Parent ~= titleBar then
+                isInteractable = true
+                break
+            end
+        end
+        
+        if not isInteractable then
+            panelDragActive = true
+            panelDragStart = input.Position
+            panelStartPos = mainPanel.Position
+        end
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if panelDragActive then
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - panelDragStart
+            mainPanel.Position = UDim2.new(0, panelStartPos.X.Offset + delta.X, 0, panelStartPos.Y.Offset + delta.Y)
+        end
+    end
+end)
+
+local btnDragActive = false
+local btnDragStart, btnStartPos
+
+floatingBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        btnDragActive = true
+        btnDragStart = input.Position
+        btnStartPos = floatingBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if btnDragActive then
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - btnDragStart
+            floatingBtn.Position = UDim2.new(0, btnStartPos.X.Offset + delta.X, 0, btnStartPos.Y.Offset + delta.Y)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        panelDragActive = false
+        btnDragActive = false
+    end
+end)
+
+-- ========== BOUTONS RÉACTIFS ==========
+local function setupButton(button, callback)
+    button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            input.Handled = true
+            local originalColor = button.BackgroundColor3
+            button.BackgroundColor3 = originalColor * 0.6
+            callback()
+            task.spawn(function()
+                task.wait(0.08)
+                button.BackgroundColor3 = originalColor
+            end)
+        end
+    end)
+    button.MouseButton1Click:Connect(callback)
+end
+
+-- ========== CERCLE FOV CENTRÉ ==========
+local circleGui = Instance.new("ScreenGui", game.CoreGui)
+circleGui.Name = "NoksVIP_FOVCircle"
+circleGui.ResetOnSpawn = false
+circleGui.IgnoreGuiInset = true
+
+local circle = Instance.new("Frame", circleGui)
+circle.Size = UDim2.new(0, SETTINGS.FOV, 0, SETTINGS.FOV)
+circle.AnchorPoint = Vector2.new(0.5, 0.5)
+circle.BackgroundTransparency = 1
+circle.Visible = SETTINGS.ENABLE_LOCK or SETTINGS.ENABLE_SILENT_AIM
+
+local circleCorner = Instance.new("UICorner", circle)
+circleCorner.CornerRadius = UDim.new(1, 0)
+local circleStroke = Instance.new("UIStroke", circle)
+circleStroke.Thickness = 2
+circleStroke.Color = Color3.fromRGB(140, 60, 220)
+
+local function centerCircle()
+    if not circle then return end
+    local viewportX = cam.ViewportSize.X
+    local viewportY = cam.ViewportSize.Y
+    circle.Position = UDim2.new(0.5, 0, 0.5, 0)
+end
+
+local function updateCircleSize()
+    if circle then
+        circle.Size = UDim2.new(0, SETTINGS.FOV, 0, SETTINGS.FOV)
+    end
+end
+
+local function updateCircleVisibility()
+    if circle then
+        circle.Visible = SETTINGS.ENABLE_LOCK or SETTINGS.ENABLE_SILENT_AIM
+    end
+end
+
+centerCircle()
+cam:GetPropertyChangedSignal("ViewportSize"):Connect(centerCircle)
+RunService.RenderStepped:Connect(centerCircle)
+
+-- ========== FONCTIONS NOCLIP ==========
+local function startNoclip()
+    if noclipConnection then noclipConnection:Disconnect() end
+    
+    noclipActive = true
+    noclipConnection = RunService.Stepped:Connect(function()
+        if SETTINGS.ENABLE_NOCLIP and lp.Character then
+            for _, part in pairs(lp.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+local function stopNoclip()
+    noclipActive = false
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+    
+    if lp.Character then
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end
+
+-- ========== FONCTIONS DE VOL ==========
+local function cleanupFly()
+    if flyThread then
+        task.cancel(flyThread)
+        flyThread = nil
+    end
+    if bodyVelocity then
+        bodyVelocity:Destroy()
+        bodyVelocity = nil
+    end
+    if bodyGyro then
+        bodyGyro:Destroy()
+        bodyGyro = nil
+    end
+    currentFlyCharacter = nil
+end
+
+local function startFly()
+    local char = lp.Character
+    if not char then return end
+    
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not root or not hum then return end
+    
+    cleanupFly()
+    
+    bodyVelocity = Instance.new("BodyVelocity", root)
+    bodyVelocity.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    
+    bodyGyro = Instance.new("BodyGyro", root)
+    bodyGyro.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+    bodyGyro.P = 10000
+    
+    hum:ChangeState(Enum.HumanoidStateType.Swimming)
+    
+    flyEnabled = true
+    currentFlyCharacter = char
+    
+    flyThread = task.spawn(function()
+        while flyEnabled and char and char.Parent and root and root.Parent do
+            local humCurrent = char:FindFirstChildOfClass("Humanoid")
+            if humCurrent then
+                local moveDir = humCurrent.MoveDirection
+                
+                if bodyVelocity then
+                    if moveDir.Magnitude > 0 then
+                        bodyVelocity.Velocity = moveDir * flySpeed
+                    else
+                        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+                    end
+                end
+                
+                if bodyGyro then
+                    bodyGyro.CFrame = cam.CFrame
+                end
+                
+                if humCurrent and humCurrent:GetState() ~= Enum.HumanoidStateType.Swimming then
+                    humCurrent:ChangeState(Enum.HumanoidStateType.Swimming)
+                end
+            end
+            task.wait()
+        end
+        cleanupFly()
+    end)
+end
+
+local function stopFly()
+    flyEnabled = false
+    cleanupFly()
+    
+    local char = lp.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum and hum:GetState() == Enum.HumanoidStateType.Swimming then
+            hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+        end
+    end
+end
+
+local function onCharacterAddedForFly(character)
+    if SETTINGS.ENABLE_FLY then
+        task.wait(0.5)
+        startFly()
+    end
+end
+
+local function onCharacterAddedForNoclip(character)
+    if SETTINGS.ENABLE_NOCLIP then
+        task.wait(0.5)
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end
+
+lp.CharacterAdded:Connect(function(character)
+    onCharacterAddedForFly(character)
+    onCharacterAddedForNoclip(character)
+end)
+
+-- ========== FONCTIONS TELEPORT FOLLOW ==========
+local function isPlayerAliveForTP(plr)
+    if not plr.Character then return false end
+    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+    return hum and hum.Health > 0
+end
+
+local function getNearestEnemyHead()
+    local closestDistance = math.huge
+    local closestHead = nil
+    local closestPlr = nil
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
+    
+    if not myPos then return nil, nil end
+    
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp and isPlayerAliveForTP(plr) and plr.Character and plr.Character:FindFirstChild("Head") then
+            local head = plr.Character.Head
+            local distance = (myPos - head.Position).Magnitude
+            if distance < closestDistance then
+                closestDistance = distance
+                closestHead = head
+                closestPlr = plr
+            end
+        end
+    end
+    return closestHead, closestPlr
+end
+
+local function cleanupBodyPosition()
+    if bodyPosition then
+        bodyPosition:Destroy()
+        bodyPosition = nil
+    end
+end
+
+local function stopFollow()
+    followActive = false
+    
+    if followConnection then
+        followConnection:Disconnect()
+        followConnection = nil
+    end
+    
+    cleanupBodyPosition()
+    
+    if lp.Character then
+        local hum = lp.Character:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.AutoRotate = true
+            hum.PlatformStand = false
+        end
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+    
+    if followBtn then
+        followBtn.BackgroundColor3 = Color3.fromRGB(35, 30, 50)
+        followBtn.Text = "👣 TELEPORT FOLLOW"
+    end
+end
+
+local function startFollow()
+    if followActive then
+        stopFollow()
+        return
+    end
+    
+    local targetHead, targetPlr = getNearestEnemyHead()
+    if not targetHead then
+        local notif = Instance.new("TextLabel")
+        notif.Parent = screenGui
+        notif.Size = UDim2.new(0, 200, 0, 40)
+        notif.Position = UDim2.new(0.5, -100, 0.5, -20)
+        notif.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        notif.Text = "❌ AUCUN ENNEMI !"
+        notif.TextColor3 = Color3.fromRGB(255, 255, 255)
+        notif.Font = Enum.Font.GothamBold
+        notif.TextScaled = true
+        local notifCorner = Instance.new("UICorner", notif)
+        notifCorner.CornerRadius = UDim.new(0, 10)
+        task.wait(1.5)
+        notif:Destroy()
+        return
+    end
+    
+    followActive = true
+    followTarget = targetPlr
+    
+    if lp.Character then
+        for _, part in pairs(lp.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+    
+    followConnection = RunService.RenderStepped:Connect(function()
+        if not followActive then return end
+        
+        local currentTarget = nil
+        local currentPlr = followTarget
+        
+        if currentPlr and currentPlr.Character and currentPlr.Character:FindFirstChild("Head") and isPlayerAliveForTP(currentPlr) then
+            currentTarget = currentPlr.Character.Head
+        else
+            local newHead, newPlr = getNearestEnemyHead()
+            if newHead then
+                currentTarget = newHead
+                currentPlr = newPlr
+                followTarget = newPlr
+            else
+                stopFollow()
+                return
+            end
+        end
+        
+        if currentTarget and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = lp.Character.HumanoidRootPart
+            local targetPos = currentTarget.Position + Vector3.new(0, SETTINGS.FOLLOW_HEIGHT, 0)
+            
+            local camPos = cam.CFrame
+            hrp.CFrame = CFrame.new(targetPos)
+            cam.CFrame = camPos
+            
+            local hum = lp.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.AutoRotate = false
+                hum.PlatformStand = true
+            end
+        end
+    end)
+    
+    followBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+    followBtn.Text = "🔴 FOLLOW ACTIF"
+end
+
+-- ========== FONCTIONS DARK TEXTURE ==========
+local darkTextureActive = false
+local darkTextureConnection = nil
+
+local function isMapPart(part)
+    if not part:IsA("BasePart") then return false end
+    if part:FindFirstAncestorOfClass("Tool") then return false end
+    local parentModel = part:FindFirstAncestorOfClass("Model")
+    if parentModel and parentModel:FindFirstChildOfClass("Humanoid") then return false end
+    if part:FindFirstChildWhichIsA("SpecialMesh") or part:FindFirstChildWhichIsA("MeshPart") then return false end
+    if part.Size.Magnitude < 5 then return false end
+    if part.Material == Enum.Material.Grass or (part.Name:lower():find("tree")) then return false end
+    if not part.Anchored then return false end
+    return true
+end
+
+local function applyDarkTexture()
+    for _, part in pairs(workspace:GetDescendants()) do
+        if isMapPart(part) then
+            part.Color = Color3.fromRGB(50, 50, 50)
+            part.Material = Enum.Material.SmoothPlastic
+        end
+    end
+end
+
+local function startDarkTexture()
+    if darkTextureConnection then darkTextureConnection:Disconnect() end
+    darkTextureActive = true
+    applyDarkTexture()
+    darkTextureConnection = workspace.DescendantAdded:Connect(function(desc)
+        if darkTextureActive and isMapPart(desc) then
+            task.wait(0.1)
+            desc.Color = Color3.fromRGB(50, 50, 50)
+            desc.Material = Enum.Material.SmoothPlastic
+        end
+    end)
+end
+
+local function stopDarkTexture()
+    darkTextureActive = false
+    if darkTextureConnection then
+        darkTextureConnection:Disconnect()
+        darkTextureConnection = nil
+    end
+end
+
+-- ========== FONCTIONS UNLOCK ALL ==========
+local function executeUnlockAll()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/QP-Offcial/Roblox/refs/heads/main/UnlockAll.lua"))()
+end
+
+-- ========== SILENT AIM ==========
+local function isPlayerAliveSA(plr)
+    if not plr.Character then return false end
+    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+    return hum and hum.Health > 0
+end
+
+local function getClosestPlayerInFOV()
+    if not SETTINGS.ENABLE_SILENT_AIM then return nil end
+    
+    local center = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y / 2)
+    local bestTarget = nil
+    local bestDist = SETTINGS.FOV / 2
+    
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp and isPlayerAliveSA(plr) and plr.Character and plr.Character:FindFirstChild("Head") then
+            local head = plr.Character.Head
+            local screenPos, onScreen = cam:WorldToViewportPoint(head.Position)
+            
+            if onScreen then
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                raycastParams.FilterDescendantsInstances = {lp.Character}
+                local ray = workspace:Raycast(cam.CFrame.Position, (head.Position - cam.CFrame.Position), raycastParams)
+                local visible = not ray or ray.Instance:IsDescendantOf(plr.Character)
+                
+                if visible then
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist <= bestDist then
+                        bestDist = dist
+                        bestTarget = plr
+                    end
+                end
+            end
+        end
+    end
+    
+    return bestTarget
+end
+
+-- Hook pour Silent Aim
+local function setupSilentAim()
+    local utilityModule = nil
+    for _, module in pairs(ReplicatedStorage:GetDescendants()) do
+        if module:IsA("ModuleScript") and module.Name == "Utility" then
+            utilityModule = module
+            break
+        end
+    end
+    
+    if utilityModule then
+        local success, utility = pcall(function() return require(utilityModule) end)
+        if success and utility and utility.Raycast then
+            originalRaycast = utility.Raycast
+            utility.Raycast = function(...)
+                local args = {...}
+                if SETTINGS.ENABLE_SILENT_AIM then
+                    local closest = getClosestPlayerInFOV()
+                    if closest and closest.Character and closest.Character:FindFirstChild("Head") then
+                        if #args >= 4 and args[4] == 999 then
+                            args[3] = closest.Character.Head.Position
+                        end
+                    end
+                end
+                return originalRaycast(table.unpack(args))
+            end
+        end
+    end
+end
+
+task.spawn(setupSilentAim)
+
+-- ========== BOUTONS ==========
+local function createButton(text, setting, icon)
+    local btn = Instance.new("TextButton")
+    btn.Parent = scrollFrame
+    btn.Size = UDim2.new(1, 0, 0, 45)
+    btn.BackgroundColor3 = SETTINGS[setting] and Color3.fromRGB(100, 40, 180) or Color3.fromRGB(35, 30, 50)
+    btn.Text = icon .. " " .. text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(0, 10)
+    
+    local function toggle()
+        SETTINGS[setting] = not SETTINGS[setting]
+        btn.BackgroundColor3 = SETTINGS[setting] and Color3.fromRGB(100, 40, 180) or Color3.fromRGB(35, 30, 50)
+        
+        if setting == "ENABLE_LOCK" then
+            updateCircleVisibility()
+        elseif setting == "ENABLE_SILENT_AIM" then
+            updateCircleVisibility()
+        elseif setting == "ENABLE_FLY" then
+            if SETTINGS.ENABLE_FLY then startFly() else stopFly() end
+        elseif setting == "ENABLE_NOCLIP" then
+            if SETTINGS.ENABLE_NOCLIP then startNoclip() else stopNoclip() end
+        elseif setting == "ENABLE_ESP" or setting == "ENABLE_XRAY" then
+            refreshESP()
+        elseif setting == "ENABLE_DARK_TEXTURE" then
+            if SETTINGS.ENABLE_DARK_TEXTURE then startDarkTexture() else stopDarkTexture() end
+        elseif setting == "ENABLE_UNLOCK_ALL" then
+            if SETTINGS.ENABLE_UNLOCK_ALL then executeUnlockAll() end
+        end
+    end
+    
+    setupButton(btn, toggle)
+    return btn
+end
+
+-- ========== SLIDER ==========
+local function createSlider(text, min, max, setting, icon)
+    local container = Instance.new("Frame")
+    container.Parent = scrollFrame
+    container.Size = UDim2.new(1, 0, 0, 65)
+    container.BackgroundTransparency = 1
+    
+    local label = Instance.new("TextLabel")
+    label.Parent = container
+    label.Size = UDim2.new(1, 0, 0, 25)
+    label.Text = icon .. " " .. text .. ": " .. tostring(SETTINGS[setting])
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(220, 210, 255)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Parent = container
+    sliderBg.Size = UDim2.new(1, 0, 0, 35)
+    sliderBg.Position = UDim2.new(0, 0, 0, 28)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(35, 30, 50)
+    
+    local bgCorner = Instance.new("UICorner", sliderBg)
+    bgCorner.CornerRadius = UDim.new(0, 10)
+    
+    local fill = Instance.new("Frame")
+    fill.Parent = sliderBg
+    fill.BackgroundColor3 = Color3.fromRGB(140, 60, 220)
+    fill.BorderSizePixel = 0
+    
+    local fillCorner = Instance.new("UICorner", fill)
+    fillCorner.CornerRadius = UDim.new(0, 10)
+    
+    local initialVal = (SETTINGS[setting] - min) / (max - min)
+    fill.Size = UDim2.new(initialVal, 0, 1, 0)
+    
+    local dragging = false
+    
+    local function updateValue(inputPos)
+        local sliderPos = sliderBg.AbsolutePosition.X
+        local sliderWidth = sliderBg.AbsoluteSize.X
+        if sliderWidth <= 0 then return end
+        
+        local pos = math.clamp((inputPos - sliderPos) / sliderWidth, 0, 1)
+        local val = math.floor(min + (max - min) * pos)
+        
+        fill.Size = UDim2.new(pos, 0, 1, 0)
+        label.Text = icon .. " " .. text .. ": " .. val
+        SETTINGS[setting] = val
+        
+        if setting == "FOV" then
+            updateCircleSize()
+        elseif setting == "FLY_SPEED" then
+            flySpeed = val
+            if flyEnabled and bodyVelocity then
+                local char = lp.Character
+                if char then
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    if hum and hum.MoveDirection.Magnitude > 0 then
+                        bodyVelocity.Velocity = hum.MoveDirection * val
+                    end
+                end
+            end
+        end
+    end
+    
+    sliderBg.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            updateValue(input.Position.X)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging then
+            if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement then
+                updateValue(input.Position.X)
+            end
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    return container
+end
+
+-- ========== BOUTONS PRINCIPAUX ==========
+createButton("AIM SNAP", "ENABLE_LOCK", "🎯")
+createButton("SILENT AIM", "ENABLE_SILENT_AIM", "🔫")
+createButton("XRAY VISION", "ENABLE_XRAY", "👁️")
+createButton("INFINITE JUMP", "ENABLE_INFJUMP", "🦘")
+createButton("FLY MODE", "ENABLE_FLY", "🕊️")
+createButton("NOCLIP", "ENABLE_NOCLIP", "🌀")
+createButton("ESP PLAYERS", "ENABLE_ESP", "👤")
+createButton("TRACERS", "ENABLE_TRACERS", "📏")
+createButton("DARK TEXTURE", "ENABLE_DARK_TEXTURE", "🌑")
+createButton("UNLOCK ALL", "ENABLE_UNLOCK_ALL", "🔓")
+createSlider("FOV RANGE", 50, 400, "FOV", "🎯")
+createSlider("FLY SPEED", 20, 200, "FLY_SPEED", "⚡")
+
+-- ========== BOUTON TELEPORT FOLLOW ==========
+local followBtn = Instance.new("TextButton")
+followBtn.Parent = scrollFrame
+followBtn.Size = UDim2.new(1, 0, 0, 45)
+followBtn.BackgroundColor3 = Color3.fromRGB(35, 30, 50)
+followBtn.Text = "👣 TELEPORT FOLLOW"
+followBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+followBtn.Font = Enum.Font.GothamBold
+followBtn.TextSize = 14
+local followCorner = Instance.new("UICorner", followBtn)
+followCorner.CornerRadius = UDim.new(0, 10)
+
+setupButton(followBtn, function()
+    if followActive then
+        stopFollow()
+    else
+        startFollow()
+    end
+end)
+
+-- ========== SLIDER FOLLOW HEIGHT ==========
+createSlider("FOLLOW HEIGHT", 1, 30, "FOLLOW_HEIGHT", "📏")
+
+-- ========== FPS BOOST ==========
+local function optimizeFPS()
+    pcall(function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Decal") or v:IsA("Texture") then v:Destroy() end
+            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then v:Destroy() end
+            if v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then v:Destroy() end
+            if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect") then v:Destroy() end
+            if v:IsA("Water") then v.Material = Enum.Material.SmoothPlastic end
+        end
+        
+        local sky = workspace:FindFirstChildOfClass("Sky")
+        if sky then sky:Destroy() end
+        
+        Lighting.ClockTime = 12
+        Lighting.GlobalShadows = false
+        Lighting.Brightness = 1
+        Lighting.Ambient = Color3.fromRGB(80, 80, 80)
+    end)
+end
+
+local fpsBtn = Instance.new("TextButton")
+fpsBtn.Parent = scrollFrame
+fpsBtn.Size = UDim2.new(1, 0, 0, 45)
+fpsBtn.Text = "⚡ FPS BOOST EXTREME"
+fpsBtn.BackgroundColor3 = Color3.fromRGB(200, 80, 50)
+fpsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsBtn.Font = Enum.Font.GothamBold
+fpsBtn.TextSize = 14
+local fpsCorner = Instance.new("UICorner", fpsBtn)
+fpsCorner.CornerRadius = UDim.new(0, 10)
+setupButton(fpsBtn, optimizeFPS)
+
+-- ========== REMOVE SCRIPT ==========
+local removeBtn = Instance.new("TextButton")
+removeBtn.Parent = scrollFrame
+removeBtn.Size = UDim2.new(1, 0, 0, 45)
+removeBtn.Text = "🗑️ REMOVE SCRIPT"
+removeBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+removeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+removeBtn.Font = Enum.Font.GothamBold
+removeBtn.TextSize = 14
+local removeCorner = Instance.new("UICorner", removeBtn)
+removeCorner.CornerRadius = UDim.new(0, 10)
+
+setupButton(removeBtn, function()
+    stopFollow()
+    stopFly()
+    stopNoclip()
+    stopDarkTexture()
+    if espFolder then espFolder:Destroy() end
+    if screenGui then screenGui:Destroy() end
+    if circleGui then circleGui:Destroy() end
+    RunService:UnbindFromRenderStep("NoksVIP_AimSnap")
+    for _, conn in pairs(espConnections) do
+        if conn then conn:Disconnect() end
+    end
+    for _, line in pairs(tracerLines) do
+        if line then line:Remove() end
+    end
+end)
+
+uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y + 10)
+end)
+
+setupButton(minBtn, function()
+    mainPanel.Visible = false
+    floatingBtn.Visible = true
+end)
+setupButton(closeBtn, function()
+    mainPanel.Visible = false
+    floatingBtn.Visible = true
+end)
+setupButton(floatingBtn, function()
+    mainPanel.Visible = true
+    floatingBtn.Visible = false
+end)
+
+-- ========== INFINITE JUMP ==========
+UserInputService.JumpRequest:Connect(function()
+    if SETTINGS.ENABLE_INFJUMP and lp.Character and not SETTINGS.ENABLE_FLY then
+        local hum = lp.Character:FindFirstChildOfClass("Humanoid")
+        if hum and hum:GetState() ~= Enum.HumanoidStateType.Jumping then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+-- ========== ESP ==========
+local function createTracer(plr)
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Color = Color3.fromRGB(140, 60, 220)
+    line.Thickness = 2
+    line.Transparency = 0.7
+    return line
+end
+
+local function cleanESP(plr)
+    if espFolder:FindFirstChild(plr.Name) then
+        espFolder[plr.Name]:Destroy()
+    end
+    if highlights[plr] then
+        highlights[plr]:Destroy()
+        highlights[plr] = nil
+    end
+    if tracerLines[plr] then
+        tracerLines[plr]:Remove()
+        tracerLines[plr] = nil
+    end
+    if espConnections[plr] then
+        espConnections[plr]:Disconnect()
+        espConnections[plr] = nil
+    end
+end
+
+local function applyESP(plr)
+    if plr == lp then return end
+    
+    cleanESP(plr)
+    
+    local function setupESP(character)
+        if not character then return end
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        
+        local bg = Instance.new("BillboardGui")
+        bg.Name = plr.Name
+        bg.Parent = espFolder
+        bg.AlwaysOnTop = true
+        bg.Size = UDim2.new(5, 0, 2.5, 0)
+        bg.StudsOffset = Vector3.new(0, 2.5, 0)
+        bg.ResetOnSpawn = false
+        
+        local nameLabel = Instance.new("TextLabel", bg)
+        nameLabel.Size = UDim2.new(1, 0, 0.4, 0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = plr.Name
+        nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextScaled = true
+        
+        local healthBarBg = Instance.new("Frame", bg)
+        healthBarBg.Size = UDim2.new(0.8, 0, 0.15, 0)
+        healthBarBg.Position = UDim2.new(0.1, 0, 0.45, 0)
+        healthBarBg.BackgroundColor3 = Color3.fromRGB(50, 45, 70)
+        
+        local healthBar = Instance.new("Frame", healthBarBg)
+        healthBar.Size = UDim2.new(1, 0, 1, 0)
+        healthBar.BackgroundColor3 = Color3.fromRGB(140, 60, 220)
+        
+        local tracer = createTracer(plr)
+        tracerLines[plr] = tracer
+        
+        local renderConn = RunService.RenderStepped:Connect(function()
+            if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
+                bg.Enabled = false
+                if tracer then tracer.Visible = false end
+                return
+            end
+            
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health > 0 then
+                local healthPercent = hum.Health / hum.MaxHealth
+                healthBar.Size = UDim2.new(healthPercent, 0, 1, 0)
+                bg.Enabled = true
+                bg.Adornee = hrp
+                
+                if healthPercent > 0.6 then
+                    healthBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                elseif healthPercent > 0.3 then
+                    healthBar.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+                else
+                    healthBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                end
+            else
+                bg.Enabled = false
+            end
+            
+            if SETTINGS.ENABLE_TRACERS and plr.Character and plr.Character:FindFirstChild("Head") then
+                local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 then
+                    local head = plr.Character.Head
+                    local screenPos, onScreen = cam:WorldToViewportPoint(head.Position)
+                    if onScreen and tracer then
+                        tracer.From = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y)
+                        tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                        tracer.Visible = true
+                    else
+                        tracer.Visible = false
+                    end
+                else
+                    tracer.Visible = false
+                end
+            elseif tracer then
+                tracer.Visible = false
+            end
+        end)
+        
+        espConnections[plr] = renderConn
+        
+        if SETTINGS.ENABLE_XRAY then
+            local hl = Instance.new("Highlight")
+            hl.FillColor = Color3.fromRGB(140, 60, 220)
+            hl.FillTransparency = 0.6
+            hl.Adornee = character
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            hl.Parent = character
+            highlights[plr] = hl
+        end
+    end
+    
+    if plr.Character then
+        setupESP(plr.Character)
+    end
+    
+    plr.CharacterAdded:Connect(function(character)
+        task.wait(0.5)
+        setupESP(character)
+    end)
+end
+
+local function refreshESP()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp then
+            cleanESP(plr)
+            applyESP(plr)
+        end
+    end
+end
+
+for _, plr in pairs(Players:GetPlayers()) do
+    task.spawn(function() applyESP(plr) end)
+end
+
+Players.PlayerAdded:Connect(applyESP)
+Players.PlayerRemoving:Connect(function(plr)
+    cleanESP(plr)
+end)
+
+-- ========== AIM SNAP ==========
+local function isPlayerAlive(plr)
+    if not plr.Character then return false end
+    local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+    return hum and hum.Health > 0
+end
+
+local function getTargetInFOV()
+    local center = Vector2.new(cam.ViewportSize.X / 2, cam.ViewportSize.Y / 2)
+    local bestTarget = nil
+    local bestDist = SETTINGS.FOV / 2
+    
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp and isPlayerAlive(plr) and plr.Character and plr.Character:FindFirstChild("Head") then
+            local head = plr.Character.Head
+            local screenPos, onScreen = cam:WorldToViewportPoint(head.Position)
+            
+            if onScreen then
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                raycastParams.FilterDescendantsInstances = {lp.Character}
+                local ray = workspace:Raycast(cam.CFrame.Position, (head.Position - cam.CFrame.Position), raycastParams)
+                local visible = not ray or ray.Instance:IsDescendantOf(plr.Character)
+                
+                if visible then
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist <= bestDist then
+                        bestDist = dist
+                        bestTarget = head
+                    end
+                end
+            end
+        end
+    end
+    
+    return bestTarget
+end
+
+RunService:BindToRenderStep("NoksVIP_AimSnap", Enum.RenderPriority.Camera.Value + 1, function()
+    if not SETTINGS.ENABLE_LOCK then return end
+    if followActive then return end
+    
+    local char = lp.Character
+    if not char then return end
+    
+    local target = getTargetInFOV()
+    
+    if target then
+        local currentPos = cam.CFrame.Position
+        cam.CFrame = CFrame.new(currentPos, target.Position)
+    end
+end)
+
+print("✅ NOKS VIP - Script chargé avec Dark Texture et Unlock All")
+
+]])()
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+print("[UnlockAll] Chargement...")
+
+local RemoteEvent = Instance.new("RemoteEvent")
+
+RemoteEvent.Name = "ClientAlert"
+RemoteEvent.Parent = LocalPlayer
+local v5 = getrawmetatable(LocalPlayer)
+local __namecall = v5.__namecall
+setreadonly(v5, false)
+v5.__namecall = newcclosure(function(p1, ...)
+    local v14 = getnamecallmethod() == "WaitForChild"
+
+    if v14 then
+        v14 = select(1, ...) == "ClientAlert"
+    end
+
+    if v14 then
+        return RemoteEvent
+    end
+
+    return __namecall(p1, ...)
+end)
+setreadonly(v5, true)
+
+local v7 = getrawmetatable(game)
+local __namecall2 = v7.__namecall
+setreadonly(v7, false)
+v7.__namecall = newcclosure(function(p2, ...)
+    local v16 = getnamecallmethod()
+
+    if v16 == "Kick" or v16 == "kick" then
+        return nil
+    end
+
+    return __namecall2(p2, ...)
+end)
+setreadonly(v7, true)
+
+local function v9(p3)
+    local p3_2 = ReplicatedStorage:FindFirstChild(p3, true)
+    if not p3_2 then
+        return false
+    end
+    local success, result = pcall(require, p3_2)
+    if not success then
+        return false
+    end
+    for k, v in pairs(result) do
+        local v23 = k
+
+        if type(v) == "function" then
+            local v24 = v23:lower()
+            local v25 = v24:find("own")
+
+            if not v25 then
+                v25 = v24:find("has")
+
+                if not v25 then
+                    v25 = v24:find("unlock")
+                end
+            end
+
+            if v25 then
+                hookfunction(v, function(...)
+                    return true
+                end)
+                print("[UnlockAll] Hijack: " .. v23)
+            end
+        end
+    end
+
+    return true
+end
+for _, v in pairs({
+	"CosmeticLibrary",
+	"SkinLibrary"
+}) do
+    local v12 = v
+
+    pcall(function()
+        v9(v12)
+    end)
+end

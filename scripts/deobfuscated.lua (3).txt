@@ -1,0 +1,217 @@
+-- This file was generated at discord.gg/syncrypt
+
+if game:GetService("CoreGui"):FindFirstChild("ToraScript") then
+    game:GetService("CoreGui").ToraScript:Destroy()
+end
+local v1 = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew", true))()
+local v2 = v1:CreateWindow("Save Your Cat")
+task.spawn(function()
+    local timestamp = tick()
+
+    while task.wait() do
+        if tick() - timestamp >= 1 then
+            timestamp = tick()
+            os.date(table.concat({
+				"%H",
+				"%M",
+				"%S"
+			}, ":"))
+        end
+    end
+end)
+local LocalPlayer = game.Players.LocalPlayer
+local CFrame2
+v2:AddToggle({
+	text = "Inf Seeds",
+	flag = "toggle",
+	state = false,
+	callback = function(p1)
+    _G.Seeds = p1
+    print("Seeds:", p1)
+
+    if p1 then
+        local Character = LocalPlayer.Character
+        local v8 = Character
+
+        if v8 then
+            v8 = Character:FindFirstChild("HumanoidRootPart")
+        end
+
+        local u9 = v8
+
+        if u9 then
+            CFrame2 = u9.CFrame
+        end
+
+        task.spawn(function()
+            while _G.Seeds do
+                Character = LocalPlayer.Character
+
+                local v15 = Character
+
+                if v15 then
+                    v15 = Character:FindFirstChild("HumanoidRootPart")
+                end
+
+                u9 = v15
+
+                if u9 then
+                    local n1 = -1e999
+                    local v17
+                    for v20, v21 in pairs(workspace.StageButtons:GetDescendants()) do
+
+                        local Seeds = v21:GetAttribute("Seeds")
+
+                        if typeof(Seeds) == "number" and n1 < Seeds then
+                            n1 = Seeds
+                            v17 = v21
+                        end
+                    end
+                    if v17 then
+                        u9.CFrame = v17:GetPivot()
+                        wait(1)
+                        u9.CFrame = CFrame2
+                    end
+                end
+
+                task.wait(1)
+            end
+        end)
+
+        return
+    end
+
+    local Character = LocalPlayer.Character
+    local v11 = Character and Character:FindFirstChild("HumanoidRootPart")
+
+    if v11 and CFrame2 then
+        wait(1)
+        v11.CFrame = CFrame2
+    end
+end
+})
+v2:AddToggle({
+	text = "Auto Buttons",
+	flag = "toggle",
+	state = false,
+	callback = function(p2)
+    _G.Buttons = p2
+    print("Buttons: ", p2)
+
+    if p2 then
+        Buttons()
+    end
+end
+})
+function Buttons()
+    spawn(function()
+        _G.Buttons = true
+
+        while _G.Buttons do
+            pcall(function()
+                local Character = game.Players.LocalPlayer.Character
+                local g37
+                if Character then
+                    Character = Character:FindFirstChild("HumanoidRootPart")
+                end
+                if not Character then
+                    return
+                end
+                local Parent
+                local n2 = 1e999
+                for v28, v29 in pairs(workspace.TycoonButtons:GetDescendants()) do
+
+                    local v30 = v29:IsA("TouchTransmitter")
+
+                    if v30 then
+                        v30 = v29.Parent:IsA("BasePart")
+                    end
+
+                    if v30 then
+                        local Magnitude = (Character.Position - v29.Parent.Position).Magnitude
+
+                        if Magnitude < n2 then
+                            n2 = Magnitude
+                            Parent = v29.Parent
+                        end
+                    end
+                end
+                if Parent then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Parent.Position) * CFrame.new(0, 5, 0)
+                    firetouchinterest(Character, Parent, 0)
+                    task.wait()
+                    firetouchinterest(Character, Parent, 1)
+                else
+                    task.wait(4)
+                    local v32 = false
+                    local v33, v34, v35 = pairs(workspace.TycoonButtons:GetDescendants())
+                    repeat
+                        local v36
+
+                        v35, v36 = v33(v34, v35)
+
+                        if not v35 then
+                            g37 = true
+                        end
+
+                        if g37 then
+                            break
+                        end
+
+                        local v38 = v36:IsA("TouchTransmitter")
+
+                        if v38 then
+                            v38 = v36.Parent:IsA("BasePart")
+                        end
+                    until v38
+                    if not g37 then
+                        v32 = true
+                    end
+                    local v39 = not v32
+                    if v39 then
+                        v39 = _G.Buttons
+                    end
+                    if v39 then
+                        Character.CFrame = workspace.ForestDen:GetPivot()
+                    end
+                end
+                task.wait(1)
+            end)
+        end
+    end)
+end
+v2:AddToggle({
+	text = "Auto Rebirth",
+	flag = "toggle",
+	state = false,
+	callback = function(p3)
+    _G.Rebirth = p3
+    print("Rebirth: ", p3)
+
+    if p3 then
+        Rebirth()
+    end
+end
+})
+function Rebirth()
+    spawn(function()
+        _G.Rebirth = true
+
+        while _G.Rebirth do
+            wait()
+            pcall(function()
+                if game:GetService("Players").LocalPlayer.PlayerGui.HudGui.LeftContent.LeftButtons.RebirthGui.Content.Value.Text == "100%" then
+                    game:GetService("ReplicatedStorage").Remotes.MotherTreeRebirth:FireServer()
+                    wait(1)
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.ForestDen:GetPivot("WorldPivot")
+                end
+
+                wait(0.2)
+            end)
+        end
+    end)
+end
+v2:AddLabel({
+	text = "YouTube: Tora IsMe"
+})
+v1:Init()
