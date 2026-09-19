@@ -1,0 +1,371 @@
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local lp = Players.LocalPlayer
+local cam = workspace.CurrentCamera
+local mouse = lp:GetMouse()
+
+local cfg = {
+	silentAim = false,
+	silentAimMethod = "Raycast",
+	silentAimMode = "Toggle",
+	silentAimKey = Enum.KeyCode.V,
+	silentAimHitChance = 100,
+	silentAimFOV = 200,
+	silentAimFOVShow = false,
+	silentAimFOVFilled = false,
+	silentAimFOVOpacity = 0.1,
+	silentAimFOVColor = Color3.fromRGB(0, 200, 130),
+	silentAimPart = "Head",
+	silentAimClosestPart = false,
+	silentAimUseAirPart = false,
+	silentAimAirPart = "LowerTorso",
+	silentAimTeamCheck = false,
+	silentAimWallCheck = false,
+	silentAimKOCheck = false,
+	silentAimMaxDist = 500,
+	silentAimTargetBots = false,
+	silentAimPredX = 0.12,
+	silentAimPredY = 0.12,
+	bulletTeleportEnabled = false,
+	bulletTeleportOffset = 5,
+}
+
+local statusById = {}
+local function getStatusById(uid)
+	return statusById[uid] or "Neutral"
+end
+
+local silentAimHooksInstalled = false
+local oldIndexHook = nil
+local silentAimCachedPart = nil
+local silentAimCachedPred = nil
+
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1.5
+fovCircle.NumSides = 64
+fovCircle.Radius = 200
+fovCircle.Color = Color3.fromRGB(0, 200, 130)
+fovCircle.Filled = false
+fovCircle.Visible = false
+fovCircle.Transparency = 0.9
+
+local function getHum(p)
+	local c = p and ((type(p) == "table" and p.char) or p.Character)
+	return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+local function getHRP(p)
+	local c = p and p.Character
+	return c and c:FindFirstChild("HumanoidRootPart")
+end
+
+local function isAlive(p)
+	local h = getHum(p)
+	if not h or h.Health <= 0 then return false end
+	local c = p.Character
+	if c then
+		local be = c:FindFirstChild("BodyEffects")
+		if be then
+			local ko = be:FindFirstChild("K.O")
+			if ko and ko.Value then return false end
+		end
+	end
+	return true
+end
+
+local function sameTeam(p)
+	return lp.Team and p.Team and lp.Team == p.Team
+end
+
+local function wallBetween(pos)
+	local ro = cam.CFrame.Position
+	local rd = pos - ro
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {lp.Character}
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local hit = workspace:Raycast(ro, rd, params)
+	if not hit then return false end
+	for _, p in pairs(Players:GetPlayers()) do
+		if p.Character and hit.Instance:IsDescendantOf(p.Character) then return false end
+	end
+	return true
+end
+
+local function getTargets(teamCheck, maxDist, targetBots, cursorPos, fovR)
+	local results = {}
+	local priorityResults = {}
+	local mloc = UIS:GetMouseLocation()
+	local center = cursorPos or mloc
+	local distLimit = maxDist or 500
+
+	for _, p in pairs(Players:GetPlayers()) do
+		if p == lp then continue end
+		local st = getStatusById(p.UserId)
+		if st == "Friendly" then continue end
+		if teamCheck and sameTeam(p) then continue end
+		if not isAlive(p) then continue end
+		local hrp = getHRP(p)
+		if not hrp then continue end
+		if (hrp.Position - cam.CFrame.Position).Magnitude > distLimit then continue end
+		local sp, on = cam:WorldToViewportPoint(hrp.Position)
+		local d = (Vector2.new(sp.X, sp.Y) - center).Magnitude
+		if st == "Priority" then
+			if not on then continue end
+			if fovR and d > fovR then continue end
+			table.insert(priorityResults, {char = p.Character, player = p, isBot = false, dist = d, hrp = hrp})
+		else
+			if not on then continue end
+			if not fovR or d <= fovR then
+				table.insert(results, {char = p.Character, player = p, isBot = false, dist = d, hrp = hrp})
+			end
+		end
+	end
+
+	if targetBots then
+		local pc = {}
+		for _, p in pairs(Players:GetPlayers()) do
+			if p.Character then pc[p.Character] = true end
+		end
+		for _, obj in pairs(workspace:GetDescendants()) do
+			if obj:IsA("Humanoid") and obj.Health > 0 then
+				local char = obj.Parent
+				if char and not pc[char] then
+					local hrp = char:FindFirstChild("HumanoidRootPart")
+					if not hrp then continue end
+					if (hrp.Position - cam.CFrame.Position).Magnitude > distLimit then continue end
+					local sp, on = cam:WorldToViewportPoint(hrp.Position)
+					if not on then continue end
+					local d = (Vector2.new(sp.X, sp.Y) - center).Magnitude
+					if not fovR or d <= fovR then
+						table.insert(results, {char = char, player = nil, isBot = true, dist = d, hrp = hrp})
+					end
+				end
+			end
+		end
+	end
+
+	table.sort(priorityResults, function(a, b) return a.dist < b.dist end)
+	table.sort(results, function(a, b) return a.dist < b.dist end)
+	local combined = {}
+	for _, v in ipairs(priorityResults) do table.insert(combined, v) end
+	for _, v in ipairs(results) do table.insert(combined, v) end
+	return combined
+end
+
+local function closestToCursorSilent(fovR, teamCheck, maxDist)
+	local targets = getTargets(teamCheck, maxDist, cfg.silentAimTargetBots, nil, fovR)
+	if #targets > 0 then
+		local t = targets[1]
+		if t.player then return t.player end
+		return t
+	end
+	return nil
+end
+
+local function getBodyParts(char)
+	return {
+		char:FindFirstChild("Head"),
+		char:FindFirstChild("UpperTorso"),
+		char:FindFirstChild("HumanoidRootPart"),
+		char:FindFirstChild("LowerTorso"),
+		char:FindFirstChild("LeftUpperArm"),
+		char:FindFirstChild("RightUpperArm"),
+		char:FindFirstChild("LeftLowerArm"),
+		char:FindFirstChild("RightLowerArm"),
+		char:FindFirstChild("LeftHand"),
+		char:FindFirstChild("RightHand"),
+		char:FindFirstChild("LeftUpperLeg"),
+		char:FindFirstChild("RightUpperLeg"),
+		char:FindFirstChild("LeftLowerLeg"),
+		char:FindFirstChild("RightLowerLeg"),
+		char:FindFirstChild("LeftFoot"),
+		char:FindFirstChild("RightFoot"),
+	}
+end
+
+local function getClosestBodyPart(char)
+	local closestPart, shortestDist = nil, math.huge
+	local mousePos = UIS:GetMouseLocation()
+	for _, part in pairs(getBodyParts(char)) do
+		if part then
+			local screenPos, onScreen = cam:WorldToViewportPoint(part.Position)
+			local dist
+			if onScreen then
+				dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+			else
+				dist = (cam.CFrame.Position - part.Position).Magnitude + 10000
+			end
+			if dist < shortestDist then shortestDist = dist; closestPart = part end
+		end
+	end
+	return closestPart
+end
+
+local function getSilentAimPart(char)
+	if not char then return nil end
+	if cfg.silentAimClosestPart then
+		return getClosestBodyPart(char)
+	end
+	local pn = cfg.silentAimPart
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if cfg.silentAimUseAirPart and hum and hum.FloorMaterial == Enum.Material.Air then
+		pn = cfg.silentAimAirPart
+	end
+	return char:FindFirstChild(pn) or char:FindFirstChild("HumanoidRootPart")
+end
+
+local function getSilentAimTarget(part)
+	if not part then return nil end
+	local char = part.Parent
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if not char or not hum then return nil end
+	if hum.Health <= 0 then return nil end
+	if cfg.silentAimKOCheck then
+		local be = char:FindFirstChild("BodyEffects")
+		if be then
+			local ko = be:FindFirstChild("K.O") or be:FindFirstChild("KO")
+			if ko and ko.Value then return nil end
+		end
+	end
+	if cfg.silentAimTeamCheck then
+		local p = Players:GetPlayerFromCharacter(char)
+		if p and sameTeam(p) then return nil end
+	end
+	local dist = (part.Position - cam.CFrame.Position).Magnitude
+	if dist > cfg.silentAimMaxDist then return nil end
+	if cfg.silentAimWallCheck and wallBetween(part.Position) then return nil end
+	return part
+end
+
+local function getSilentAimHitPart()
+	local target = closestToCursorSilent(cfg.silentAimFOV, cfg.silentAimTeamCheck, cfg.silentAimMaxDist)
+	if not target then return nil end
+	local part = getSilentAimPart((type(target) == "table" and target.char) or target.Character)
+	return getSilentAimTarget(part)
+end
+
+local function getSilentAimPred(part)
+	local vel = part.AssemblyLinearVelocity
+	return part.Position + Vector3.new(
+		vel.X * cfg.silentAimPredX,
+		vel.Y * cfg.silentAimPredY,
+		vel.Z * cfg.silentAimPredX
+	)
+end
+
+local _grm = getrawmetatable(game)
+local _oldIndex = _grm.__index
+setreadonly(_grm, false)
+
+local _saRayParams = RaycastParams.new()
+_saRayParams.FilterType = Enum.RaycastFilterType.Exclude
+_saRayParams.FilterDescendantsInstances = lp.Character and {lp.Character} or {}
+lp.CharacterAdded:Connect(function(c) _saRayParams.FilterDescendantsInstances = {c} end)
+
+_grm.__index = function(self, key)
+	if not checkcaller() and self == mouse then
+		if (key == "Hit" or key == "Target" or key == "UnitRay")
+			and silentAimCachedPart and silentAimCachedPred
+			and math.random(1, 100) <= cfg.silentAimHitChance then
+
+			if cfg.silentAimMethod == "Raycast" then
+				local origin = cam.CFrame.Position
+				local pred   = silentAimCachedPred
+				local delta  = pred - origin
+				local dist   = delta.Magnitude
+				local dir    = delta.Unit
+				if key == "UnitRay" then
+					return Ray.new(origin, dir)
+				end
+				if key == "Hit" then
+					local res = workspace:Raycast(origin, dir * (dist + 5), _saRayParams)
+					local hitPos = res and res.Position or pred
+					if cfg.bulletTeleportEnabled then
+						hitPos = hitPos + (origin - hitPos).Unit * cfg.bulletTeleportOffset
+					end
+					return CFrame.new(hitPos)
+				end
+				if key == "Target" then return silentAimCachedPart end
+			else
+				if key == "Hit" then
+					local hitPos = silentAimCachedPred
+					if cfg.bulletTeleportEnabled then
+						hitPos = hitPos + (cam.CFrame.Position - hitPos).Unit * cfg.bulletTeleportOffset
+					end
+					return CFrame.new(hitPos)
+				end
+				if key == "Target" then return silentAimCachedPart end
+			end
+		end
+	end
+	return _oldIndex(self, key)
+end
+
+setreadonly(_grm, true)
+
+local function uninstallSilentAimHooks()
+	if not silentAimHooksInstalled then return end
+	silentAimCachedPart = nil
+	silentAimCachedPred = nil
+	silentAimHooksInstalled = false
+end
+
+local function uninstallSilentAimHooksHard()
+	silentAimCachedPart = nil
+	silentAimCachedPred = nil
+	silentAimHooksInstalled = false
+	pcall(function()
+		setreadonly(_grm, false)
+		_grm.__index = _oldIndex
+		setreadonly(_grm, true)
+	end)
+end
+
+local function installRaycastHooks()
+	silentAimHooksInstalled = true
+	oldIndexHook = _oldIndex
+end
+
+UIS.InputBegan:Connect(function(i)
+	if i.UserInputType ~= Enum.UserInputType.Keyboard then return end
+	if i.KeyCode == cfg.silentAimKey then
+		if cfg.silentAimMode == "Hold" then
+			cfg.silentAim = true
+		else
+			cfg.silentAim = not cfg.silentAim
+		end
+	end
+end)
+
+UIS.InputEnded:Connect(function(i)
+	if i.UserInputType ~= Enum.UserInputType.Keyboard then return end
+	if cfg.silentAim and cfg.silentAimKey ~= Enum.KeyCode.Unknown and i.KeyCode == cfg.silentAimKey and cfg.silentAimMode == "Hold" then cfg.silentAim = false end
+end)
+
+RunService.RenderStepped:Connect(function()
+	local mousePos = UIS:GetMouseLocation()
+	if fovCircle then
+		fovCircle.Position = mousePos
+		fovCircle.Radius = cfg.silentAimFOV
+		fovCircle.Filled = cfg.silentAimFOVFilled
+		fovCircle.Transparency = 1 - cfg.silentAimFOVOpacity
+		fovCircle.Color = cfg.silentAimFOVColor
+		fovCircle.Visible = cfg.silentAim and cfg.silentAimFOVShow
+	end
+	if cfg.silentAim or cfg.silentAimMode == "Always" then
+		local part = getSilentAimHitPart()
+		if part then
+			silentAimCachedPart = part
+			silentAimCachedPred = getSilentAimPred(part)
+		else
+			silentAimCachedPart = nil
+			silentAimCachedPred = nil
+		end
+	else
+		silentAimCachedPart = nil
+		silentAimCachedPred = nil
+	end
+end)
+
+installRaycastHooks()
