@@ -1,0 +1,1950 @@
+-- This file was generated at discord.gg/syncrypt
+
+local t1 = {}
+local v2 = unpack or table.unpack
+t1.value1 = loadstring(game:HttpGet("https://raw.githubusercontent.com/34r90i342iwefnwd/ScawsLoader/refs/heads/main/kovari_source"))()
+t1.value2 = game:GetService("HttpService")
+t1.value3 = "Rivals_Hub_Config.json"
+local function v3()
+    local _writefile = writefile
+
+    if _writefile then
+        _writefile = readfile and isfile
+    end
+
+    if not _writefile then
+        return nil
+    end
+
+    if isfile(t1.value3) then
+        local ok, result = pcall(function()
+            local value2 = t1.value2
+            local t2 = { readfile(t1.value3) }
+
+            return value2:JSONDecode(v2(t2))
+        end)
+
+        if ok and result then
+            return result
+        end
+    end
+
+    return nil
+end
+function t1.value4(p1)
+    if writefile then
+        pcall(function()
+            writefile(t1.value3, t1.value2:JSONEncode(p1))
+        end)
+    end
+end
+function t1.value5()
+    local t3 = {}
+
+    game:IsLoaded()
+
+    repeat
+        task.wait()
+    until game:IsLoaded()
+
+    task.wait(0.8)
+    t3.value1 = t1.value1:Init({
+		ToggleKey = Enum.KeyCode.RightControl,
+		Discord = "discord.gg/QcvddpVeTM"
+	})
+    task.wait(0.5)
+    t3.value2 = game:GetService("Players")
+
+    local RunService = game:GetService("RunService")
+
+    t3.value3 = game:GetService("UserInputService")
+    t3.value4 = game:GetService("Workspace")
+    game:GetService("ReplicatedStorage")
+    t3.value5 = t3.value4.CurrentCamera
+    t3.value6 = t3.value2.LocalPlayer
+
+    local new = Random.new
+    local t4 = { tick() }
+
+    t3.value7 = new(v2(t4))
+    t3.value8 = 0
+    t3.value9 = 0
+    Vector2.new(0, 0)
+    t3.value10 = nil
+    t3.value11 = nil
+    t3.value12 = 0
+
+    function t3.value13(p2, p3)
+        return p2 + (p3 - p2) * t3.value7:NextNumber()
+    end
+    function t3.value14(p4, p5, p6)
+        return p4 + (p5 - p4) * p6
+    end
+
+    local function v12(p7, p8, p9)
+        return Vector3.new(t3.value14(p7.X, p8.X, p9), t3.value14(p7.Y, p8.Y, p9), t3.value14(p7.Z, p8.Z, p9))
+    end
+
+    local t5 = {
+		Enabled = false,
+		FOV = 90,
+		ShowFOV = true,
+		Smoothness = 12,
+		TargetPart = "Head",
+		WallCheck = true,
+		Prediction = true,
+		PredictionAmount = 135,
+		Humanizer = true,
+		HumanizerStrength = 50,
+		RandomDelay = true,
+		DelayAmount = 20,
+		CurveAim = true,
+		CurveStrength = 30,
+		MaxAimSpeed = 500,
+		JitterAmount = 5,
+		DistanceScaling = true,
+		VelocitySmoothing = true,
+		AdaptivePrediction = true,
+		AngleCompensation = true,
+		SmoothEntry = true,
+		EntrySmoothing = 25
+	}
+    local t6 = {
+		Enabled = false,
+		FOV = 120,
+		ShowFOV = false,
+		TargetPart = "Head",
+		WallCheck = true,
+		Prediction = true,
+		PredictionAmount = 120,
+		HitChance = 100,
+		VisualizeTarget = true
+	}
+    local t7 = {
+		Enabled = false,
+		Boxes = true,
+		Tracers = false,
+		Names = true,
+		Health = true,
+		Distance = true,
+		MaxDistance = 1500
+	}
+
+    t3.value15 = {
+		Aimbot = t5,
+		SilentAim = t6,
+		ESP = t7
+	}
+
+    local v16 = v3()
+
+    if v16 then
+        for k, v in pairs(v16) do
+            local v19 = k
+
+            if t3.value15[v19] then
+                for k2, v4 in pairs(v) do
+                    local v22 = k2
+
+                    if t3.value15[v19][v22] ~= nil then
+                        t3.value15[v19][v22] = v4
+                    end
+                end
+            end
+        end
+    end
+
+    t3.value16 = Drawing.new("Circle")
+    t3.value16.Radius = t3.value15.Aimbot.FOV
+    t3.value16.Color = Color3.fromRGB(255, 255, 255)
+    t3.value16.Thickness = 1.5
+    t3.value16.NumSides = 64
+    t3.value16.Filled = false
+    t3.value16.Transparency = 1
+    t3.value16.Visible = false
+    t3.value16.ZIndex = 999
+    t3.value17 = Drawing.new("Circle")
+    t3.value17.Radius = t3.value15.SilentAim.FOV
+    t3.value17.Color = Color3.fromRGB(0, 255, 255)
+    t3.value17.Thickness = 1.5
+    t3.value17.NumSides = 64
+    t3.value17.Filled = false
+    t3.value17.Transparency = 0.7
+    t3.value17.Visible = false
+    t3.value17.ZIndex = 998
+    t3.value18 = Drawing.new("Circle")
+    t3.value18.Radius = 5
+    t3.value18.Color = Color3.fromRGB(0, 255, 255)
+    t3.value18.Thickness = 2
+    t3.value18.NumSides = 16
+    t3.value18.Filled = true
+    t3.value18.Visible = false
+    t3.value18.ZIndex = 1000
+    t3.value19 = nil
+    t3.value20 = {}
+    t3.value21 = 5
+
+    local function v23(p10)
+        if not p10 then
+            return nil
+        end
+
+        local HumanoidRootPart = p10:FindFirstChild("HumanoidRootPart")
+
+        if not HumanoidRootPart then
+            HumanoidRootPart = p10:FindFirstChild("Torso") or p10.PrimaryPart
+        end
+
+        return HumanoidRootPart
+    end
+    local function v24(p11)
+        if not p11 then
+            return nil
+        end
+
+        return p11:FindFirstChildOfClass("Humanoid")
+    end
+    local function v25(p12)
+        if not p12 then
+            return false
+        end
+
+        if p12 == t3.value6 then
+            return false
+        end
+
+        local Character = p12.Character
+
+        if not Character then
+            return false
+        end
+
+        if not Character.Parent then
+            return false
+        end
+
+        local v140 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+        if not v140 then
+            return false
+        end
+
+        if v140.Health <= 0 then
+            return false
+        end
+
+        local v141
+
+        if not Character then
+            v141 = nil
+        else
+            v141 = Character:FindFirstChild("HumanoidRootPart")
+
+            if not v141 then
+                v141 = Character:FindFirstChild("Torso") or Character.PrimaryPart
+            end
+        end
+
+        if not v141 then
+            return false
+        end
+
+        if not if Character then Character:FindFirstChild("Head") else nil then
+            return false
+        end
+
+        return true
+    end
+    local function v26()
+        local Character = t3.value6.Character
+
+        if not Character then
+            return false
+        end
+
+        local v143 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+        if not v143 then
+            return false
+        end
+
+        if v143.Health <= 0 then
+            return false
+        end
+
+        return true
+    end
+    local function v27(p13)
+        if not v25(p13) then
+            return 1e999
+        end
+
+        local Character = t3.value6.Character
+        local v146
+
+        if not Character then
+            v146 = false
+        else
+            local v147 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+            v146 = if v147 then not (v147.Health <= 0) else false
+        end
+
+        if not v146 then
+            return 1e999
+        end
+
+        local Character2 = t3.value6.Character
+        local v149
+
+        if not Character2 then
+            v149 = nil
+        else
+            v149 = Character2:FindFirstChild("HumanoidRootPart")
+
+            if not v149 then
+                v149 = Character2:FindFirstChild("Torso") or Character2.PrimaryPart
+            end
+        end
+
+        local Character3 = p13.Character
+        local v151
+
+        if not Character3 then
+            v151 = nil
+        else
+            v151 = Character3:FindFirstChild("HumanoidRootPart")
+
+            if not v151 then
+                v151 = Character3:FindFirstChild("Torso") or Character3.PrimaryPart
+            end
+        end
+
+        if not v149 or not v151 then
+            return 1e999
+        end
+
+        return (v149.Position - v151.Position).Magnitude
+    end
+
+    function t3.value22(p14, p15)
+        if not t3.value15.Aimbot.VelocitySmoothing then
+            local vector3 = Vector3.new(0, 0, 0)
+            local u155 = vector3
+            pcall(function()
+                local AssemblyLinearVelocity = p14.AssemblyLinearVelocity
+
+                if not AssemblyLinearVelocity then
+                    AssemblyLinearVelocity = p14.Velocity
+
+                    if not AssemblyLinearVelocity then
+                        AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    end
+                end
+
+                u155 = AssemblyLinearVelocity
+            end)
+
+            return u155
+        end
+
+        if not t3.value20[p15] then
+            t3.value20[p15] = {}
+        end
+
+        local v156 = t3.value20[p15]
+        local vector3 = Vector3.new(0, 0, 0)
+
+        pcall(function()
+            local AssemblyLinearVelocity = p14.AssemblyLinearVelocity
+
+            if not AssemblyLinearVelocity then
+                AssemblyLinearVelocity = p14.Velocity
+
+                if not AssemblyLinearVelocity then
+                    AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                end
+            end
+
+            vector3 = AssemblyLinearVelocity
+        end)
+        table.insert(v156, vector3)
+
+        while #v156 > t3.value21 do
+            table.remove(v156, 1)
+        end
+
+        local vector3_2 = Vector3.new(0, 0, 0)
+        local n1 = 0
+
+        for i, v in ipairs(v156) do
+            local v162 = i / #v156
+
+            vector3_2 += v * v162
+            n1 += v162
+        end
+
+        return vector3_2 / math.max(n1, 0.001)
+    end
+
+    local function v28(p16, p17)
+        if not v26() then
+            return 0
+        end
+
+        local Character = t3.value6.Character
+        local v166
+
+        if not Character then
+            v166 = nil
+        else
+            v166 = Character:FindFirstChild("HumanoidRootPart")
+
+            if not v166 then
+                v166 = Character:FindFirstChild("Torso") or Character.PrimaryPart
+            end
+        end
+
+        local v167 = v23(p16.Character)
+
+        if not v166 or not v167 then
+            return 0
+        end
+
+        local Unit = (v167.Position - v166.Position).Unit
+        local Unit2 = p17.Unit
+
+        if p17.Magnitude < 1 then
+            return 0
+        end
+
+        local v170 = Unit:Dot(Unit2)
+        local v171 = math.acos((math.clamp(v170, -1, 1)))
+
+        return math.deg(v171)
+    end
+
+    function t3.value23(p18, p19, p20, p21)
+        if not p18 then
+            return p18.Position
+        end
+
+        local v176 = t3.value22(p18, p19)
+        local v177 = p20 / 1000
+
+        if p21 then
+            p21 = t3.value15.Aimbot.DistanceScaling
+        end
+
+        if p21 then
+            v177 *= math.clamp(v27(p19) / 100, 0.6, 1.8)
+        end
+
+        if t3.value15.Aimbot.AdaptivePrediction then
+            local Magnitude = v176.Magnitude
+
+            if Magnitude > 30 then
+                v177 *= 1.15
+            elseif Magnitude < 10 then
+                v177 *= 0.85
+            end
+        end
+
+        if t3.value15.Aimbot.AngleCompensation then
+            local v179 = v28(p19, v176)
+
+            if v179 > 45 and v179 < 135 then
+                v177 *= 0.7 + v179 / 180 * 0.4
+            end
+        end
+
+        if t3.value15.Aimbot.Humanizer then
+            local v180 = t3.value15.Aimbot.HumanizerStrength / 100 * 0.15
+
+            v177 *= 1 + t3.value13(-v180, v180)
+        end
+
+        local v181 = p18.Position + v176 * v177
+
+        if math.abs(v176.Y) > 5 then
+            v181 += Vector3.new(0, -t3.value4.Gravity * v177 * v177 * 0.4, 0)
+        end
+
+        return v181
+    end
+
+    local function v29(p22)
+        local Character = t3.value6.Character
+
+        if not Character then
+            return false
+        end
+
+        local v184 = if Character then Character:FindFirstChild("Head") else nil
+
+        if not v184 then
+            return false
+        end
+
+        local raycastParams = RaycastParams.new()
+
+        raycastParams.FilterDescendantsInstances = {
+			Character,
+			p22.Parent
+		}
+        raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+
+        local v186 = p22.Position - v184.Position
+
+        return t3.value4:Raycast(v184.Position, v186, raycastParams) == nil
+    end
+    local function v30(p23, p24)
+        if not p23 then
+            return nil
+        end
+
+        local p24_2 = p23:FindFirstChild(p24)
+
+        if p24_2 then
+            return p24_2
+        end
+
+        local Head = p23:FindFirstChild("Head")
+
+        if not Head then
+            Head = p23:FindFirstChild("HumanoidRootPart")
+
+            if not Head then
+                Head = p23:FindFirstChild("UpperTorso")
+
+                if not Head then
+                    Head = p23:FindFirstChild("Torso")
+                end
+            end
+        end
+
+        return Head
+    end
+    local function v31(p25, p26, p27)
+        local Character = t3.value6.Character
+        local v195
+        if not Character then
+            v195 = false
+        else
+            local v196 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+            v195 = if v196 then not (v196.Health <= 0) else false
+        end
+        if not v195 then
+            return nil
+        end
+        local v197
+        local MouseLocation = t3.value3:GetMouseLocation()
+        for _, player in pairs(t3.value2:GetPlayers()) do
+            if v25(player) then
+                local Character4 = player.Character
+                local v202 = v30(Character4, p27)
+
+                if v202 then
+                    local v203, v204 = t3.value5:WorldToViewportPoint(v202.Position)
+
+                    if v204 and v203.Z > 0 then
+                        local Magnitude = (Vector2.new(v203.X, v203.Y) - MouseLocation).Magnitude
+
+                        if Magnitude < p25 and (not p26 or v29(v202)) then
+                            p25 = Magnitude
+                            v197 = player
+                        end
+                    end
+                end
+            end
+        end
+
+        return v197
+    end
+    local function v32()
+        if t3.value15.Aimbot.JitterAmount <= 0 then
+            return Vector2.new(0, 0)
+        end
+
+        local JitterAmount = t3.value15.Aimbot.JitterAmount
+        local new2 = Vector2.new
+        local v208 = -JitterAmount
+
+        return new2(t3.value13(v208, JitterAmount), t3.value13(-JitterAmount, JitterAmount))
+    end
+
+    function t3.value24(p28, p29)
+        if not p28 then
+            return
+        end
+
+        if not mousemoverel then
+            return
+        end
+
+        if t3.value15.Aimbot.RandomDelay then
+            if tick() < t3.value8 + t3.value9 then
+                return
+            end
+
+            t3.value13(0, t3.value15.Aimbot.DelayAmount / 1000)
+        end
+
+        local v211 = t3.value23(p28, p29, t3.value15.Aimbot.PredictionAmount, true)
+
+        if t3.value15.Aimbot.SmoothEntry then
+            if t3.value10 == nil then
+                t3.value10 = v211
+            else
+                local v212 = t3.value15.Aimbot.EntrySmoothing / 100
+
+                t3.value10 = v12(t3.value10, v211, 1 - v212 * 0.8)
+            end
+
+            v211 = t3.value10
+        end
+
+        local v213, v214 = t3.value5:WorldToViewportPoint(v211)
+
+        if not v214 or v213.Z <= 0 then
+            return
+        end
+
+        local MouseLocation = t3.value3:GetMouseLocation()
+        local v216 = Vector2.new(v213.X, v213.Y) - MouseLocation
+        local Magnitude = v216.Magnitude
+
+        if Magnitude < 1 then
+            return
+        end
+
+        local Smoothness = t3.value15.Aimbot.Smoothness
+
+        if p29 ~= t3.value11 then
+            t3.value12 = tick()
+            Smoothness *= 1.5
+        else
+            local v219 = tick() - t3.value12
+
+            if v219 < 0.3 then
+                Smoothness *= 1.5 - v219
+            end
+        end
+
+        if t3.value15.Aimbot.Humanizer then
+            local v220 = t3.value15.Aimbot.HumanizerStrength / 100 * 0.25
+
+            Smoothness *= 1 + t3.value13(-v220, v220)
+        end
+
+        local v221 = Smoothness * math.clamp(Magnitude / 200, 0.5, 2)
+        local v222 = v216.X / v221
+        local v223 = v216.Y / v221
+        local v224 = math.sqrt(v222 * v222 + v223 * v223)
+        local MaxAimSpeed = t3.value15.Aimbot.MaxAimSpeed
+
+        if MaxAimSpeed < v224 then
+            local v226 = MaxAimSpeed / v224
+
+            v222 *= v226
+            v223 *= v226
+        end
+
+        if t3.value15.Aimbot.CurveAim and Magnitude > 15 then
+            local v227 = t3.value15.Aimbot.CurveStrength / 100
+            local v228 = math.min(Magnitude / 100, 1) * v227
+            local v229 = -v216.Y / Magnitude * v228 * t3.value13(-0.5, 0.5)
+            local v230 = v216.X / Magnitude * v228 * t3.value13(-0.5, 0.5)
+
+            v222 += v229
+            v223 += v230
+        end
+
+        local v231 = v32()
+        local v232 = v222 + v231.X
+        local v233 = v223 + v231.Y
+
+        if t3.value15.Aimbot.Humanizer then
+            if Magnitude < 30 then
+                local v234 = t3.value13(0.85, 1.15)
+
+                v232 *= v234
+                v233 *= v234
+            end
+
+            if t3.value7:NextNumber() < 0.03 then
+                return
+            end
+        end
+
+        mousemoverel(v232, v233)
+    end
+
+    t3.value25 = nil
+    t3.value26 = nil
+
+    local function v33()
+        if not t3.value15.SilentAim.Enabled then
+            return nil, nil
+        end
+
+        local Character = t3.value6.Character
+        local v236
+
+        if not Character then
+            v236 = false
+        else
+            local v237 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+            v236 = if v237 then not (v237.Health <= 0) else false
+        end
+
+        if not v236 then
+            return nil, nil
+        end
+
+        local v238 = v31(t3.value15.SilentAim.FOV, t3.value15.SilentAim.WallCheck, t3.value15.SilentAim.TargetPart)
+
+        if not v238 then
+            return nil, nil
+        end
+
+        if t3.value15.SilentAim.HitChance < 100 and t3.value7:NextNumber() * 100 > t3.value15.SilentAim.HitChance then
+            return nil, nil
+        end
+
+        local Character5 = v238.Character
+
+        if not Character5 then
+            return nil, nil
+        end
+
+        local v240 = v30(Character5, t3.value15.SilentAim.TargetPart)
+
+        if not v240 then
+            return nil, nil
+        end
+
+        return v238, v240
+    end
+    local function v34()
+        if not t3.value25 or not t3.value26 then
+            return nil
+        end
+
+        if not v25(t3.value25) then
+            return nil
+        end
+
+        local value26Position = t3.value26.Position
+
+        if t3.value15.SilentAim.Prediction then
+            value26Position = t3.value23(t3.value26, t3.value25, t3.value15.SilentAim.PredictionAmount, true)
+        end
+
+        return value26Position
+    end
+
+    pcall(function()
+        if not getrawmetatable then
+            return
+        end
+
+        local v242 = getrawmetatable(game)
+
+        if not v242 then
+            return
+        end
+
+        local __index = v242.__index
+        local __namecall = v242.__namecall
+
+        if setreadonly then
+            setreadonly(v242, false)
+        end
+
+        v242.__namecall = newcclosure(function(p30, ...)
+            local v321 = getnamecallmethod()
+
+            if t3.value15.SilentAim.Enabled and t3.value25 then
+                if v321 == "ViewportPointToRay" or v321 == "ScreenPointToRay" then
+                    local v322 = v34()
+
+                    if v322 then
+                        local CFramePosition = t3.value5.CFrame.Position
+                        local Unit = (v322 - CFramePosition).Unit
+
+                        return Ray.new(CFramePosition, Unit * 1000)
+                    end
+                end
+
+                if (p30 == t3.value3 or p30 == t3.value6:GetMouse()) and v321 == "GetMouseLocation" then
+                    local v325 = v34()
+
+                    if v325 then
+                        local v326 = t3.value5:WorldToViewportPoint(v325)
+
+                        return Vector2.new(v326.X, v326.Y)
+                    end
+                end
+            end
+
+            return __namecall(p30, ...)
+        end)
+        v242.__index = newcclosure(function(p31, p32)
+            if t3.value15.SilentAim.Enabled and t3.value25 then
+                local v329 = v34()
+
+                if v329 and p31 == t3.value6:GetMouse() then
+                    if p32 == "Hit" then
+                        return CFrame.new(v329)
+                    end
+
+                    if p32 == "Target" then
+                        return t3.value26
+                    end
+
+                    if p32 == "UnitRay" then
+                        local CFramePosition = t3.value5.CFrame.Position
+                        local Unit = (v329 - CFramePosition).Unit
+
+                        return Ray.new(CFramePosition, Unit)
+                    end
+                end
+            end
+
+            return __index(p31, p32)
+        end)
+
+        if setreadonly then
+            setreadonly(v242, true)
+        end
+    end)
+    t3.value27 = {}
+
+    local function v35(p33)
+        local v246 = t3.value27[p33]
+
+        if v246 then
+            pcall(function()
+                v246.Box:Remove()
+            end)
+            pcall(function()
+                v246.BoxOutline:Remove()
+            end)
+            pcall(function()
+                v246.Name:Remove()
+            end)
+            pcall(function()
+                v246.DistanceText:Remove()
+            end)
+            pcall(function()
+                v246.HealthBarBG:Remove()
+            end)
+            pcall(function()
+                v246.HealthBar:Remove()
+            end)
+            pcall(function()
+                v246.Tracer:Remove()
+            end)
+            t3.value27[p33] = nil
+        end
+    end
+
+    function t3.value28(p34)
+        if p34 == t3.value6 then
+            return
+        end
+
+        v35(p34)
+
+        local t8 = {
+			BoxOutline = Drawing.new("Square")
+		}
+
+        t8.BoxOutline.Thickness = 3
+        t8.BoxOutline.Filled = false
+        t8.BoxOutline.Color = Color3.fromRGB(0, 0, 0)
+        t8.BoxOutline.Visible = false
+        t8.BoxOutline.ZIndex = 1
+        t8.Box = Drawing.new("Square")
+        t8.Box.Thickness = 1
+        t8.Box.Filled = false
+        t8.Box.Color = Color3.fromRGB(255, 0, 0)
+        t8.Box.Visible = false
+        t8.Box.ZIndex = 2
+        t8.Name = Drawing.new("Text")
+        t8.Name.Size = 14
+        t8.Name.Center = true
+        t8.Name.Outline = true
+        t8.Name.Color = Color3.fromRGB(255, 255, 255)
+        t8.Name.Font = 2
+        t8.Name.Visible = false
+        t8.Name.ZIndex = 3
+        t8.DistanceText = Drawing.new("Text")
+        t8.DistanceText.Size = 12
+        t8.DistanceText.Center = true
+        t8.DistanceText.Outline = true
+        t8.DistanceText.Color = Color3.fromRGB(200, 200, 200)
+        t8.DistanceText.Font = 2
+        t8.DistanceText.Visible = false
+        t8.DistanceText.ZIndex = 3
+        t8.HealthBarBG = Drawing.new("Square")
+        t8.HealthBarBG.Thickness = 1
+        t8.HealthBarBG.Filled = true
+        t8.HealthBarBG.Color = Color3.fromRGB(0, 0, 0)
+        t8.HealthBarBG.Visible = false
+        t8.HealthBarBG.ZIndex = 1
+        t8.HealthBar = Drawing.new("Square")
+        t8.HealthBar.Thickness = 1
+        t8.HealthBar.Filled = true
+        t8.HealthBar.Color = Color3.fromRGB(0, 255, 0)
+        t8.HealthBar.Visible = false
+        t8.HealthBar.ZIndex = 2
+        t8.Tracer = Drawing.new("Line")
+        t8.Tracer.Thickness = 1
+        t8.Tracer.Color = Color3.fromRGB(255, 255, 255)
+        t8.Tracer.Transparency = 1
+        t8.Tracer.Visible = false
+        t8.Tracer.ZIndex = 1
+        t3.value27[p34] = t8
+    end
+    function t3.value29()
+        for k, v in pairs(t3.value27) do
+            local v252 = v
+
+            pcall(function()
+                if not t3.value15.ESP.Enabled then
+                    local v332 = v252
+
+                    if not v332 then
+                        return
+                    end
+
+                    v332.Box.Visible = false
+                    v332.BoxOutline.Visible = false
+                    v332.Name.Visible = false
+                    v332.DistanceText.Visible = false
+                    v332.HealthBarBG.Visible = false
+                    v332.HealthBar.Visible = false
+                    v332.Tracer.Visible = false
+
+                    return
+                end
+
+                if not v25(k) then
+                    local v333 = v252
+
+                    if not v333 then
+                        return
+                    end
+
+                    v333.Box.Visible = false
+                    v333.BoxOutline.Visible = false
+                    v333.Name.Visible = false
+                    v333.DistanceText.Visible = false
+                    v333.HealthBarBG.Visible = false
+                    v333.HealthBar.Visible = false
+                    v333.Tracer.Visible = false
+
+                    return
+                end
+
+                local v334 = v27(k)
+
+                if v334 > t3.value15.ESP.MaxDistance then
+                    local v335 = v252
+
+                    if not v335 then
+                        return
+                    end
+
+                    v335.Box.Visible = false
+                    v335.BoxOutline.Visible = false
+                    v335.Name.Visible = false
+                    v335.DistanceText.Visible = false
+                    v335.HealthBarBG.Visible = false
+                    v335.HealthBar.Visible = false
+                    v335.Tracer.Visible = false
+
+                    return
+                end
+
+                local Character = k.Character
+                local v337
+
+                if not Character then
+                    v337 = nil
+                else
+                    v337 = Character:FindFirstChild("HumanoidRootPart")
+
+                    if not v337 then
+                        v337 = Character:FindFirstChild("Torso") or Character.PrimaryPart
+                    end
+                end
+
+                local v338 = not v337
+                local v339 = if Character then Character:FindFirstChild("Head") else nil
+                local v340 = v24(Character)
+
+                if not v338 then
+                    v338 = not v339 or not v340
+                end
+
+                if v338 then
+                    local v341 = v252
+
+                    if not v341 then
+                        return
+                    end
+
+                    v341.Box.Visible = false
+                    v341.BoxOutline.Visible = false
+                    v341.Name.Visible = false
+                    v341.DistanceText.Visible = false
+                    v341.HealthBarBG.Visible = false
+                    v341.HealthBar.Visible = false
+                    v341.Tracer.Visible = false
+
+                    return
+                end
+
+                local v342, v343 = t3.value5:WorldToViewportPoint(v337.Position)
+
+                if not v343 or v342.Z <= 0 then
+                    local v344 = v252
+
+                    if not v344 then
+                        return
+                    end
+
+                    v344.Box.Visible = false
+                    v344.BoxOutline.Visible = false
+                    v344.Name.Visible = false
+                    v344.DistanceText.Visible = false
+                    v344.HealthBarBG.Visible = false
+                    v344.HealthBar.Visible = false
+                    v344.Tracer.Visible = false
+
+                    return
+                end
+
+                local v345 = t3.value5:WorldToViewportPoint(v339.Position + Vector3.new(0, 0.5, 0))
+                local v346 = t3.value5:WorldToViewportPoint(v337.Position - Vector3.new(0, 3, 0))
+                local v347 = math.abs(v345.Y - v346.Y)
+                local v348 = v347 * 0.5
+                local v349 = v342.X - v348 / 2
+                local v350 = v342.Y - v347 / 2
+
+                if t3.value15.ESP.Boxes then
+                    v252.BoxOutline.Size = Vector2.new(v348, v347)
+                    v252.BoxOutline.Position = Vector2.new(v349, v350)
+                    v252.BoxOutline.Visible = true
+                    v252.Box.Size = Vector2.new(v348, v347)
+                    v252.Box.Position = Vector2.new(v349, v350)
+                    v252.Box.Visible = true
+                else
+                    v252.Box.Visible = false
+                    v252.BoxOutline.Visible = false
+                end
+
+                if t3.value15.ESP.Names then
+                    v252.Name.Text = k.DisplayName
+                    v252.Name.Position = Vector2.new(v342.X, v345.Y - 20)
+                    v252.Name.Visible = true
+                else
+                    v252.Name.Visible = false
+                end
+
+                if t3.value15.ESP.Distance then
+                    v252.DistanceText.Text = string.format("[%dm]", (math.floor(v334)))
+                    v252.DistanceText.Position = Vector2.new(v342.X, v346.Y + 5)
+                    v252.DistanceText.Visible = true
+                else
+                    v252.DistanceText.Visible = false
+                end
+
+                if t3.value15.ESP.Health then
+                    local v351 = math.clamp(v340.Health / v340.MaxHealth, 0, 1)
+                    local v352 = v252
+                    local v353 = v349 - 4 - 4
+
+                    v352.HealthBarBG.Size = Vector2.new(4, v347)
+                    v252.HealthBarBG.Position = Vector2.new(v353, v350)
+                    v252.HealthBarBG.Visible = true
+
+                    local v354 = v347 * v351
+
+                    v252.HealthBar.Size = Vector2.new(4, v354)
+                    v252.HealthBar.Position = Vector2.new(v353, v350 + v347 - v354)
+                    v252.HealthBar.Visible = true
+
+                    if v351 > 0.6 then
+                        v252.HealthBar.Color = Color3.fromRGB(0, 255, 0)
+                    elseif v351 > 0.3 then
+                        v252.HealthBar.Color = Color3.fromRGB(255, 255, 0)
+                    else
+                        v252.HealthBar.Color = Color3.fromRGB(255, 0, 0)
+                    end
+                else
+                    v252.HealthBarBG.Visible = false
+                    v252.HealthBar.Visible = false
+                end
+
+                if t3.value15.ESP.Tracers then
+                    v252.Tracer.From = Vector2.new(t3.value5.ViewportSize.X / 2, t3.value5.ViewportSize.Y)
+                    v252.Tracer.To = Vector2.new(v346.X, v346.Y)
+                    v252.Tracer.Visible = true
+
+                    return
+                end
+
+                v252.Tracer.Visible = false
+            end)
+        end
+    end
+
+    RunService.RenderStepped:Connect(function()
+        t3.value5 = t3.value4.CurrentCamera
+
+        local MouseLocation = t3.value3:GetMouseLocation()
+
+        t3.value16.Position = MouseLocation
+        t3.value16.Radius = t3.value15.Aimbot.FOV
+
+        local value16 = t3.value16
+        local AimbotEnabled = t3.value15.Aimbot.Enabled
+
+        if AimbotEnabled then
+            AimbotEnabled = t3.value15.Aimbot.ShowFOV
+        end
+
+        value16.Visible = AimbotEnabled
+        t3.value17.Position = MouseLocation
+        t3.value17.Radius = t3.value15.SilentAim.FOV
+
+        local value17 = t3.value17
+        local SilentAimEnabled = t3.value15.SilentAim.Enabled
+
+        if SilentAimEnabled then
+            SilentAimEnabled = t3.value15.SilentAim.ShowFOV
+        end
+
+        value17.Visible = SilentAimEnabled
+
+        if t3.value19 then
+            t3.value16.Color = Color3.fromRGB(255, 0, 0)
+        else
+            t3.value16.Color = Color3.fromRGB(255, 255, 255)
+        end
+
+        if t3.value25 then
+            t3.value17.Color = Color3.fromRGB(0, 255, 0)
+        else
+            t3.value17.Color = Color3.fromRGB(0, 255, 255)
+        end
+
+        local AimbotEnabled2 = t3.value15.Aimbot.Enabled
+
+        if AimbotEnabled2 then
+            local Character = t3.value6.Character
+
+            if not Character then
+                AimbotEnabled2 = false
+            else
+                local v260 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+                AimbotEnabled2 = if v260 then not (v260.Health <= 0) else false
+            end
+        end
+
+        if AimbotEnabled2 then
+            local v261 = v31(t3.value15.Aimbot.FOV, t3.value15.Aimbot.WallCheck, t3.value15.Aimbot.TargetPart)
+
+            if v261 and v261.Character then
+                local v262 = v30(v261.Character, t3.value15.Aimbot.TargetPart)
+
+                if v262 then
+                    t3.value24(v262, v261)
+                end
+            end
+        end
+
+        local SilentAimEnabled2 = t3.value15.SilentAim.Enabled
+
+        if SilentAimEnabled2 then
+            local Character = t3.value6.Character
+
+            if not Character then
+                SilentAimEnabled2 = false
+            else
+                local v265 = if Character then Character:FindFirstChildOfClass("Humanoid") else nil
+
+                SilentAimEnabled2 = if v265 then not (v265.Health <= 0) else false
+            end
+        end
+
+        if SilentAimEnabled2 then
+            local _, v267 = v33()
+
+            t3.value26 = v267
+
+            if t3.value15.SilentAim.VisualizeTarget and t3.value26 then
+                local v268, v269 = t3.value5:WorldToViewportPoint(t3.value26.Position)
+
+                if v269 and v268.Z > 0 then
+                    t3.value18.Position = Vector2.new(v268.X, v268.Y)
+                    t3.value18.Visible = true
+                else
+                    t3.value18.Visible = false
+                end
+            else
+                t3.value18.Visible = false
+            end
+        else
+            t3.value18.Visible = false
+        end
+
+        t3.value29()
+    end)
+
+    for _, player in pairs(t3.value2:GetPlayers()) do
+        local v38 = player
+
+        if v38 ~= t3.value6 then
+            t3.value28(v38)
+            v38.CharacterAdded:Connect(function()
+                task.wait(0.3)
+                t3.value28(v38)
+                t3.value20[v38] = nil
+            end)
+        end
+    end
+
+    t3.value2.PlayerAdded:Connect(function(player)
+        t3.value28(player)
+        player.CharacterAdded:Connect(function()
+            task.wait(0.3)
+            t3.value28(player)
+            t3.value20[player] = nil
+        end)
+    end)
+    t3.value2.PlayerRemoving:Connect(function(player)
+        v35(player)
+        t3.value20[player] = nil
+    end)
+
+    local v39 = t3.value1:CreateTab("Aimbot", false)
+    local v40 = t3.value1:CreateTab("Silent Aim", false)
+    local v41 = t3.value1:CreateTab("Visuals", false)
+    local v42 = t3.value1:CreateTab("Detection", false)
+
+    task.wait(0.2)
+
+    local v43 = v39:AddSection("Aimbot")
+    local AimbotEnabled = t3.value15.Aimbot.Enabled
+
+    v43:AddToggle({
+		Name = "Enabled",
+		Default = AimbotEnabled,
+		Callback = function(p35)
+        t3.value15.Aimbot.Enabled = p35
+        t1.value4(t3.value15)
+    end
+	})
+
+    local ShowFOV = t3.value15.Aimbot.ShowFOV
+
+    v43:AddToggle({
+		Name = "Show FOV",
+		Default = ShowFOV,
+		Callback = function(p36)
+        t3.value15.Aimbot.ShowFOV = p36
+        t1.value4(t3.value15)
+    end
+	})
+
+    local value15 = t3.value15
+    local AddToggle = v43.AddToggle
+    local WallCheck = value15.Aimbot.WallCheck
+
+    AddToggle(v43, {
+		Name = "Wall Check",
+		Default = WallCheck,
+		Callback = function(p37)
+        t3.value15.Aimbot.WallCheck = p37
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Aimbot = t3.value15.Aimbot
+    local AddToggle2 = v43.AddToggle
+    local Prediction = Aimbot.Prediction
+
+    AddToggle2(v43, {
+		Name = "Prediction",
+		Default = Prediction,
+		Callback = function(p38)
+        t3.value15.Aimbot.Prediction = p38
+        t1.value4(t3.value15)
+    end
+	})
+
+    local FOV = t3.value15.Aimbot.FOV
+
+    t3.value30 = v43:AddSlider({
+		Name = "FOV",
+		Min = 30,
+		Max = 400,
+		Default = FOV,
+		Suffix = "px",
+		Callback = function(p39)
+        t3.value15.Aimbot.FOV = p39
+        t1.value4(t3.value15)
+    end
+	})
+
+    local value15_2 = t3.value15
+    local AddSlider = v43.AddSlider
+    local Smoothness = value15_2.Aimbot.Smoothness
+
+    t3.value31 = AddSlider(v43, {
+		Name = "Smoothness",
+		Min = 1,
+		Max = 30,
+		Default = Smoothness,
+		Callback = function(p40)
+        t3.value15.Aimbot.Smoothness = p40
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Aimbot2 = t3.value15.Aimbot
+    local AddSlider2 = v43.AddSlider
+    local PredictionAmount = Aimbot2.PredictionAmount
+
+    t3.value32 = AddSlider2(v43, {
+		Name = "Prediction",
+		Min = 50,
+		Max = 300,
+		Default = PredictionAmount,
+		Suffix = "ms",
+		Callback = function(p41)
+        t3.value15.Aimbot.PredictionAmount = p41
+        t1.value4(t3.value15)
+    end
+	})
+
+    local TargetPart = t3.value15.Aimbot.TargetPart
+
+    v43:AddDropdown({
+		Name = "Target",
+		Options = {
+			"Head",
+			"HumanoidRootPart",
+			"UpperTorso",
+			"Torso"
+		},
+		Default = TargetPart,
+		Callback = function(p42)
+        t3.value15.Aimbot.TargetPart = p42
+        t1.value4(t3.value15)
+    end
+	})
+
+    local v60 = v40:AddSection("Silent Aim")
+    local SilentAimEnabled = t3.value15.SilentAim.Enabled
+
+    v60:AddToggle({
+		Name = "Enabled",
+		Default = SilentAimEnabled,
+		Callback = function(p43)
+        t3.value15.SilentAim.Enabled = p43
+        t1.value4(t3.value15)
+    end
+	})
+
+    local SilentAim = t3.value15.SilentAim
+    local AddToggle3 = v60.AddToggle
+    local ShowFOV2 = SilentAim.ShowFOV
+
+    AddToggle3(v60, {
+		Name = "Show FOV",
+		Default = ShowFOV2,
+		Callback = function(p44)
+        t3.value15.SilentAim.ShowFOV = p44
+        t1.value4(t3.value15)
+    end
+	})
+
+    local WallCheck2 = t3.value15.SilentAim.WallCheck
+
+    v60:AddToggle({
+		Name = "Wall Check",
+		Default = WallCheck2,
+		Callback = function(p45)
+        t3.value15.SilentAim.WallCheck = p45
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Prediction2 = t3.value15.SilentAim.Prediction
+
+    v60:AddToggle({
+		Name = "Prediction",
+		Default = Prediction2,
+		Callback = function(p46)
+        t3.value15.SilentAim.Prediction = p46
+        t1.value4(t3.value15)
+    end
+	})
+
+    local SilentAim2 = t3.value15.SilentAim
+    local AddToggle4 = v60.AddToggle
+    local VisualizeTarget = SilentAim2.VisualizeTarget
+
+    AddToggle4(v60, {
+		Name = "Show Target",
+		Default = VisualizeTarget,
+		Callback = function(p47)
+        t3.value15.SilentAim.VisualizeTarget = p47
+        t1.value4(t3.value15)
+    end
+	})
+
+    local value15_3 = t3.value15
+    local AddSlider3 = v60.AddSlider
+    local FOV2 = value15_3.SilentAim.FOV
+
+    AddSlider3(v60, {
+		Name = "FOV",
+		Min = 30,
+		Max = 500,
+		Default = FOV2,
+		Suffix = "px",
+		Callback = function(p48)
+        t3.value15.SilentAim.FOV = p48
+        t1.value4(t3.value15)
+    end
+	})
+
+    local PredictionAmount2 = t3.value15.SilentAim.PredictionAmount
+
+    v60:AddSlider({
+		Name = "Prediction",
+		Min = 50,
+		Max = 300,
+		Default = PredictionAmount2,
+		Suffix = "ms",
+		Callback = function(p49)
+        t3.value15.SilentAim.PredictionAmount = p49
+        t1.value4(t3.value15)
+    end
+	})
+
+    local HitChance = t3.value15.SilentAim.HitChance
+
+    v60:AddSlider({
+		Name = "Hit Chance",
+		Min = 1,
+		Max = 100,
+		Default = HitChance,
+		Suffix = "%",
+		Callback = function(p50)
+        t3.value15.SilentAim.HitChance = p50
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AddDropdown = v60.AddDropdown
+    local TargetPart2 = t3.value15.SilentAim.TargetPart
+
+    AddDropdown(v60, {
+		Name = "Target",
+		Options = {
+			"Head",
+			"HumanoidRootPart",
+			"UpperTorso",
+			"Torso"
+		},
+		Default = TargetPart2,
+		Callback = function(p51)
+        t3.value15.SilentAim.TargetPart = p51
+        t1.value4(t3.value15)
+    end
+	})
+
+    local v77 = v42:AddSection("Optimization")
+    local AddToggle5 = v77.AddToggle
+    local Humanizer = t3.value15.Aimbot.Humanizer
+
+    AddToggle5(v77, {
+		Name = "Humanizer",
+		Default = Humanizer,
+		Callback = function(p52)
+        t3.value15.Aimbot.Humanizer = p52
+        t1.value4(t3.value15)
+    end
+	})
+
+    local value15_4 = t3.value15
+    local AddSlider4 = v77.AddSlider
+    local HumanizerStrength = value15_4.Aimbot.HumanizerStrength
+
+    AddSlider4(v77, {
+		Name = "Humanizer Strength",
+		Min = 0,
+		Max = 100,
+		Default = HumanizerStrength,
+		Suffix = "%",
+		Callback = function(p53)
+        t3.value15.Aimbot.HumanizerStrength = p53
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Aimbot3 = t3.value15.Aimbot
+    local AddToggle6 = v77.AddToggle
+    local RandomDelay = Aimbot3.RandomDelay
+
+    AddToggle6(v77, {
+		Name = "Random Delay",
+		Default = RandomDelay,
+		Callback = function(p54)
+        t3.value15.Aimbot.RandomDelay = p54
+        t1.value4(t3.value15)
+    end
+	})
+
+    local DelayAmount = t3.value15.Aimbot.DelayAmount
+
+    v77:AddSlider({
+		Name = "Delay",
+		Min = 0,
+		Max = 100,
+		Default = DelayAmount,
+		Suffix = "ms",
+		Callback = function(p55)
+        t3.value15.Aimbot.DelayAmount = p55
+        t1.value4(t3.value15)
+    end
+	})
+
+    local CurveAim = t3.value15.Aimbot.CurveAim
+
+    v77:AddToggle({
+		Name = "Curve Aim",
+		Default = CurveAim,
+		Callback = function(p56)
+        t3.value15.Aimbot.CurveAim = p56
+        t1.value4(t3.value15)
+    end
+	})
+
+    local CurveStrength = t3.value15.Aimbot.CurveStrength
+
+    v77:AddSlider({
+		Name = "Curve Strength",
+		Min = 0,
+		Max = 100,
+		Default = CurveStrength,
+		Suffix = "%",
+		Callback = function(p57)
+        t3.value15.Aimbot.CurveStrength = p57
+        t1.value4(t3.value15)
+    end
+	})
+
+    local MaxAimSpeed = t3.value15.Aimbot.MaxAimSpeed
+
+    v77:AddSlider({
+		Name = "Max Speed",
+		Min = 50,
+		Max = 1000,
+		Default = MaxAimSpeed,
+		Suffix = "px",
+		Callback = function(p58)
+        t3.value15.Aimbot.MaxAimSpeed = p58
+        t1.value4(t3.value15)
+    end
+	})
+
+    local JitterAmount = t3.value15.Aimbot.JitterAmount
+
+    v77:AddSlider({
+		Name = "Jitter",
+		Min = 0,
+		Max = 20,
+		Default = JitterAmount,
+		Suffix = "px",
+		Callback = function(p59)
+        t3.value15.Aimbot.JitterAmount = p59
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AddToggle7 = v77.AddToggle
+    local DistanceScaling = t3.value15.Aimbot.DistanceScaling
+
+    AddToggle7(v77, {
+		Name = "Distance Scaling",
+		Default = DistanceScaling,
+		Callback = function(p60)
+        t3.value15.Aimbot.DistanceScaling = p60
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AddToggle8 = v77.AddToggle
+    local VelocitySmoothing = t3.value15.Aimbot.VelocitySmoothing
+
+    AddToggle8(v77, {
+		Name = "Velocity Smoothing",
+		Default = VelocitySmoothing,
+		Callback = function(p61)
+        t3.value15.Aimbot.VelocitySmoothing = p61
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AdaptivePrediction = t3.value15.Aimbot.AdaptivePrediction
+
+    v77:AddToggle({
+		Name = "Adaptive Prediction",
+		Default = AdaptivePrediction,
+		Callback = function(p62)
+        t3.value15.Aimbot.AdaptivePrediction = p62
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AngleCompensation = t3.value15.Aimbot.AngleCompensation
+
+    v77:AddToggle({
+		Name = "Angle Compensation",
+		Default = AngleCompensation,
+		Callback = function(p63)
+        t3.value15.Aimbot.AngleCompensation = p63
+        t1.value4(t3.value15)
+    end
+	})
+
+    local SmoothEntry = t3.value15.Aimbot.SmoothEntry
+
+    v77:AddToggle({
+		Name = "Smooth Entry",
+		Default = SmoothEntry,
+		Callback = function(p64)
+        t3.value15.Aimbot.SmoothEntry = p64
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AddSlider5 = v77.AddSlider
+    local EntrySmoothing = t3.value15.Aimbot.EntrySmoothing
+
+    AddSlider5(v77, {
+		Name = "Entry Smoothing",
+		Min = 0,
+		Max = 100,
+		Default = EntrySmoothing,
+		Suffix = "%",
+		Callback = function(p65)
+        t3.value15.Aimbot.EntrySmoothing = p65
+        t1.value4(t3.value15)
+    end
+	})
+
+    local v100 = v42:AddSection("Presets")
+
+    function t3.value33(p66)
+
+        for v306, v307 in pairs(p66) do
+
+            if t3.value15.Aimbot[v306] ~= nil then
+                t3.value15.Aimbot[v306] = v307
+            end
+        end
+        t1.value4(t3.value15)
+        local value30 = t3.value30
+        if value30 then
+            value30 = t3.value30.Set
+        end
+        if value30 then
+            t3.value30:Set(t3.value15.Aimbot.FOV)
+        end
+        local value31 = t3.value31
+        if value31 then
+            value31 = t3.value31.Set
+        end
+        if value31 then
+            t3.value31:Set(t3.value15.Aimbot.Smoothness)
+        end
+        local value32 = t3.value32
+        if value32 then
+            value32 = t3.value32.Set
+        end
+        if value32 then
+            t3.value32:Set(t3.value15.Aimbot.PredictionAmount)
+        end
+    end
+
+    v100:AddButton({
+		Name = "Light",
+		Callback = function()
+        t3.value33({
+				FOV = 70,
+				Smoothness = 16,
+				PredictionAmount = 95,
+				TargetPart = "UpperTorso",
+				Humanizer = true,
+				HumanizerStrength = 65,
+				RandomDelay = true,
+				DelayAmount = 25,
+				CurveAim = true,
+				CurveStrength = 20,
+				MaxAimSpeed = 280,
+				JitterAmount = 2,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = true,
+				EntrySmoothing = 35
+			})
+        t3.value1:Notify("Preset", "Light configuration applied", 3)
+    end
+	})
+    v100:AddButton({
+		Name = "Medium",
+		Callback = function()
+        t3.value33({
+				FOV = 95,
+				Smoothness = 11,
+				PredictionAmount = 115,
+				TargetPart = "Head",
+				Humanizer = true,
+				HumanizerStrength = 45,
+				RandomDelay = true,
+				DelayAmount = 15,
+				CurveAim = true,
+				CurveStrength = 15,
+				MaxAimSpeed = 400,
+				JitterAmount = 3,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = true,
+				EntrySmoothing = 25
+			})
+        t3.value1:Notify("Preset", "Medium configuration applied", 3)
+    end
+	})
+    v100:AddButton({
+		Name = "Hard",
+		Callback = function()
+        t3.value33({
+				FOV = 140,
+				Smoothness = 7,
+				PredictionAmount = 130,
+				TargetPart = "Head",
+				Humanizer = true,
+				HumanizerStrength = 25,
+				RandomDelay = true,
+				DelayAmount = 8,
+				CurveAim = true,
+				CurveStrength = 8,
+				MaxAimSpeed = 600,
+				JitterAmount = 1,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = true,
+				EntrySmoothing = 15
+			})
+        t3.value1:Notify("Preset", "Hard configuration applied", 3)
+    end
+	})
+    v100:AddButton({
+		Name = "Competitive",
+		Callback = function()
+        t3.value33({
+				FOV = 85,
+				Smoothness = 13,
+				PredictionAmount = 105,
+				TargetPart = "Head",
+				Humanizer = true,
+				HumanizerStrength = 55,
+				RandomDelay = true,
+				DelayAmount = 18,
+				CurveAim = true,
+				CurveStrength = 18,
+				MaxAimSpeed = 350,
+				JitterAmount = 2,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = true,
+				EntrySmoothing = 30
+			})
+        t3.value1:Notify("Preset", "Competitive configuration applied", 3)
+    end
+	})
+    v100:AddButton({
+		Name = "Flick",
+		Callback = function()
+        t3.value33({
+				FOV = 110,
+				Smoothness = 8,
+				PredictionAmount = 100,
+				TargetPart = "Head",
+				Humanizer = true,
+				HumanizerStrength = 30,
+				RandomDelay = false,
+				DelayAmount = 5,
+				CurveAim = false,
+				CurveStrength = 5,
+				MaxAimSpeed = 700,
+				JitterAmount = 0,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = false,
+				EntrySmoothing = 10
+			})
+        t3.value1:Notify("Preset", "Flick configuration applied", 3)
+    end
+	})
+    v100:AddButton({
+		Name = "Tracking",
+		Callback = function()
+        t3.value33({
+				FOV = 100,
+				Smoothness = 14,
+				PredictionAmount = 120,
+				TargetPart = "UpperTorso",
+				Humanizer = true,
+				HumanizerStrength = 50,
+				RandomDelay = true,
+				DelayAmount = 12,
+				CurveAim = true,
+				CurveStrength = 12,
+				MaxAimSpeed = 320,
+				JitterAmount = 2,
+				DistanceScaling = true,
+				VelocitySmoothing = true,
+				AdaptivePrediction = true,
+				AngleCompensation = true,
+				SmoothEntry = true,
+				EntrySmoothing = 40
+			})
+        t3.value1:Notify("Preset", "Tracking configuration applied", 3)
+    end
+	})
+
+    local v101 = v41:AddSection("ESP")
+    local ESP = t3.value15.ESP
+    local AddToggle9 = v101.AddToggle
+    local ESPEnabled = ESP.Enabled
+
+    AddToggle9(v101, {
+		Name = "Enabled",
+		Default = ESPEnabled,
+		Callback = function(p67)
+        t3.value15.ESP.Enabled = p67
+        t1.value4(t3.value15)
+    end
+	})
+
+    local ESP2 = t3.value15.ESP
+    local AddToggle10 = v101.AddToggle
+    local Boxes = ESP2.Boxes
+
+    AddToggle10(v101, {
+		Name = "Boxes",
+		Default = Boxes,
+		Callback = function(p68)
+        t3.value15.ESP.Boxes = p68
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Tracers = t3.value15.ESP.Tracers
+
+    v101:AddToggle({
+		Name = "Tracers",
+		Default = Tracers,
+		Callback = function(p69)
+        t3.value15.ESP.Tracers = p69
+        t1.value4(t3.value15)
+    end
+	})
+
+    local AddToggle11 = v101.AddToggle
+    local Names = t3.value15.ESP.Names
+
+    AddToggle11(v101, {
+		Name = "Names",
+		Default = Names,
+		Callback = function(p70)
+        t3.value15.ESP.Names = p70
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Health = t3.value15.ESP.Health
+
+    v101:AddToggle({
+		Name = "Health",
+		Default = Health,
+		Callback = function(p71)
+        t3.value15.ESP.Health = p71
+        t1.value4(t3.value15)
+    end
+	})
+
+    local Distance = t3.value15.ESP.Distance
+
+    v101:AddToggle({
+		Name = "Distance",
+		Default = Distance,
+		Callback = function(p72)
+        t3.value15.ESP.Distance = p72
+        t1.value4(t3.value15)
+    end
+	})
+
+    local MaxDistance = t3.value15.ESP.MaxDistance
+
+    v101:AddSlider({
+		Name = "Max Distance",
+		Min = 100,
+		Max = 5000,
+		Default = MaxDistance,
+		Suffix = " studs",
+		Callback = function(p73)
+        t3.value15.ESP.MaxDistance = p73
+        t1.value4(t3.value15)
+    end
+	})
+    t3.value1:Notify("Rivals Hub", "Initialized", 3)
+    t3.value1:SetStatus("Active", t1.value1.Theme.Success)
+end
+t1.value1:CreateKeyUI({
+	Title = "RIVALS HUB",
+	Subtitle = "Rivals",
+	ApiKey = "0015f93e-20bf-48fb-a444-33b056019ebe",
+	Service = "key system",
+	Provider = "key system",
+	Discord = "discord.gg/QcvddpVeTM",
+	OnSuccess = function()
+    t1.value5()
+end,
+	OnFailed = function(_)
+end
+})
