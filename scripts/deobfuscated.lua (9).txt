@@ -1935,16 +1935,6 @@ function t1.value5()
     t3.value1:Notify("Rivals Hub", "Initialized", 3)
     t3.value1:SetStatus("Active", t1.value1.Theme.Success)
 end
-t1.value1:CreateKeyUI({
-	Title = "RIVALS HUB",
-	Subtitle = "Rivals",
-	ApiKey = "0015f93e-20bf-48fb-a444-33b056019ebe",
-	Service = "key system",
-	Provider = "key system",
-	Discord = "discord.gg/QcvddpVeTM",
-	OnSuccess = function()
-    t1.value5()
-end,
-	OnFailed = function(_)
-end
-})
+
+-- Key system removed: directly initializing main function
+t1.value5()
